@@ -191,7 +191,29 @@
   "cta": {
     "item": {
       "item": {
-        "id": "1",
+        "item": {
+          "item": {
+            "id": "1",
+            "badge": "Mulai Sekarang",
+            "title": "Siap Menghadirkan Praktisi ke Institusi Anda?",
+            "description": "Hubungi kami sekarang untuk konsultasi gratis. Tim kami siap membantu menemukan praktisi yang tepat untuk kebutuhan institusi Anda.",
+            "buttonText": "Ajukan Praktisi Mengajar",
+            "buttonLink": "https://wa.me/6285646420488",
+            "secondaryButtonText": "Konsultasi via WhatsApp",
+            "phone": "+62 856-4642-0488",
+            "email": "info@praktisimengajar.id",
+            "location": "Jakarta, Indonesia"
+          },
+          "badge": "Mulai Sekarang",
+          "title": "Siap Menghadirkan Praktisi ke Institusi Anda?",
+          "description": "Hubungi kami sekarang untuk konsultasi gratis. Tim kami siap membantu menemukan praktisi yang tepat untuk kebutuhan institusi Anda.",
+          "buttonText": "Ajukan Praktisi Mengajar",
+          "buttonLink": "https://wa.me/6285646420488",
+          "secondaryButtonText": "Konsultasi via WhatsApp",
+          "phone": "+62 853-3130-6824",
+          "email": "info@praktisimengajar.id",
+          "location": "Jakarta, Indonesia"
+        },
         "badge": "Mulai Sekarang",
         "title": "Siap Menghadirkan Praktisi ke Institusi Anda?",
         "description": "Hubungi kami sekarang untuk konsultasi gratis. Tim kami siap membantu menemukan praktisi yang tepat untuk kebutuhan institusi Anda.",
