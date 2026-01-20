@@ -74,8 +74,7 @@ const About = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="flex items-start gap-3"
-                  >
+                    className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
                       <IconComponent className="w-5 h-5 text-accent" />
                     </div>
