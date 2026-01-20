@@ -9,14 +9,27 @@ import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
+interface CTAData {
+  badge: string;
+  title: string;
+  description: string;
+  buttonText: string;
+  buttonLink: string;
+  secondaryButtonText: string;
+  phone: string;
+  email: string;
+  location: string;
+}
+
 const CTAManagement = () => {
   const queryClient = useQueryClient();
-  const { data: cta, isLoading } = useQuery({
+
+  const { data: cta, isLoading } = useQuery<CTAData>({
     queryKey: ["cta"],
     queryFn: api.getCTA,
   });
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CTAData>({
     badge: "",
     title: "",
     description: "",
@@ -45,7 +58,7 @@ const CTAManagement = () => {
   }, [cta]);
 
   const updateMutation = useMutation({
-    mutationFn: (data: any) => api.updateCTA(data),
+    mutationFn: (data: CTAData) => api.updateCTA(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cta"] });
       toast.success("CTA section berhasil diperbarui!");
@@ -53,7 +66,7 @@ const CTAManagement = () => {
     onError: () => toast.error("Gagal memperbarui CTA section"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     updateMutation.mutate(formData);
   };
@@ -76,6 +89,7 @@ const CTAManagement = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* === Konten CTA === */}
         <Card>
           <CardHeader>
             <CardTitle>Konten CTA</CardTitle>
@@ -84,34 +98,22 @@ const CTAManagement = () => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="badge">Badge Text</Label>
-              <Input
-                id="badge"
-                value={formData.badge}
-                onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-              />
+              <Input id="badge" value={formData.badge} onChange={(e) => setFormData({ ...formData, badge: e.target.value })} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="title">Judul</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
+              <Input id="title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">Deskripsi</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={3}
-              />
+              <Textarea id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} />
             </div>
           </CardContent>
         </Card>
 
+        {/* === Tombol CTA === */}
         <Card>
           <CardHeader>
             <CardTitle>Tombol CTA</CardTitle>
@@ -121,33 +123,22 @@ const CTAManagement = () => {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="buttonText">Teks Tombol Utama</Label>
-                <Input
-                  id="buttonText"
-                  value={formData.buttonText}
-                  onChange={(e) => setFormData({ ...formData, buttonText: e.target.value })}
-                />
+                <Input id="buttonText" value={formData.buttonText} onChange={(e) => setFormData({ ...formData, buttonText: e.target.value })} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="buttonLink">Link Tombol Utama</Label>
-                <Input
-                  id="buttonLink"
-                  value={formData.buttonLink}
-                  onChange={(e) => setFormData({ ...formData, buttonLink: e.target.value })}
-                />
+                <Input id="buttonLink" value={formData.buttonLink} onChange={(e) => setFormData({ ...formData, buttonLink: e.target.value })} />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="secondaryButtonText">Teks Tombol Sekunder</Label>
-              <Input
-                id="secondaryButtonText"
-                value={formData.secondaryButtonText}
-                onChange={(e) => setFormData({ ...formData, secondaryButtonText: e.target.value })}
-              />
+              <Input id="secondaryButtonText" value={formData.secondaryButtonText} onChange={(e) => setFormData({ ...formData, secondaryButtonText: e.target.value })} />
             </div>
           </CardContent>
         </Card>
 
+        {/* === Kontak === */}
         <Card>
           <CardHeader>
             <CardTitle>Informasi Kontak</CardTitle>
@@ -156,30 +147,17 @@ const CTAManagement = () => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Telepon / WhatsApp</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
+              <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
+              <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="location">Lokasi</Label>
-              <Input
-                id="location"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              />
+              <Input id="location" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
             </div>
           </CardContent>
         </Card>

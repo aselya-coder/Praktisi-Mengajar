@@ -4,19 +4,42 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
+/* ====== TYPE ====== */
+interface SocialMedia {
+  facebook: string;
+  instagram: string;
+  linkedin: string;
+}
+
+interface FooterData {
+  description: string;
+  phone: string;
+  email: string;
+  location: string;
+  copyright: string;
+  socialMedia: SocialMedia;
+}
+
 const FooterManagement = () => {
   const queryClient = useQueryClient();
-  const { data: footer, isLoading } = useQuery({
+
+  const { data: footer, isLoading } = useQuery<FooterData>({
     queryKey: ["footer"],
     queryFn: api.getFooter,
   });
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FooterData>({
     description: "",
     phone: "",
     email: "",
@@ -47,7 +70,7 @@ const FooterManagement = () => {
   }, [footer]);
 
   const updateMutation = useMutation({
-    mutationFn: (data: any) => api.updateFooter(data),
+    mutationFn: (data: FooterData) => api.updateFooter(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["footer"] });
       toast.success("Footer berhasil diperbarui!");
@@ -55,7 +78,7 @@ const FooterManagement = () => {
     onError: () => toast.error("Gagal memperbarui footer"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     updateMutation.mutate(formData);
   };
@@ -72,12 +95,11 @@ const FooterManagement = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Footer</h1>
-        <p className="text-muted-foreground">
-          Kelola konten footer website
-        </p>
+        <p className="text-muted-foreground">Kelola konten footer website</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Informasi Umum */}
         <Card>
           <CardHeader>
             <CardTitle>Informasi Umum</CardTitle>
@@ -89,7 +111,9 @@ const FooterManagement = () => {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 rows={3}
               />
             </div>
@@ -99,16 +123,19 @@ const FooterManagement = () => {
               <Input
                 id="copyright"
                 value={formData.copyright}
-                onChange={(e) => setFormData({ ...formData, copyright: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, copyright: e.target.value })
+                }
               />
             </div>
           </CardContent>
         </Card>
 
+        {/* Kontak */}
         <Card>
           <CardHeader>
             <CardTitle>Informasi Kontak</CardTitle>
-            <CardDescription>Detail kontak yang ditampilkan di footer</CardDescription>
+            <CardDescription>Detail kontak di footer</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -116,7 +143,9 @@ const FooterManagement = () => {
               <Input
                 id="phone"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
               />
             </div>
 
@@ -126,7 +155,9 @@ const FooterManagement = () => {
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
             </div>
 
@@ -135,62 +166,40 @@ const FooterManagement = () => {
               <Input
                 id="location"
                 value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, location: e.target.value })
+                }
               />
             </div>
           </CardContent>
         </Card>
 
+        {/* Media Sosial */}
         <Card>
           <CardHeader>
             <CardTitle>Media Sosial</CardTitle>
-            <CardDescription>Link ke akun media sosial (opsional)</CardDescription>
+            <CardDescription>Link akun sosial media</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="facebook">Facebook URL</Label>
-              <Input
-                id="facebook"
-                value={formData.socialMedia.facebook}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    socialMedia: { ...formData.socialMedia, facebook: e.target.value },
-                  })
-                }
-                placeholder="https://facebook.com/..."
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="instagram">Instagram URL</Label>
-              <Input
-                id="instagram"
-                value={formData.socialMedia.instagram}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    socialMedia: { ...formData.socialMedia, instagram: e.target.value },
-                  })
-                }
-                placeholder="https://instagram.com/..."
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="linkedin">LinkedIn URL</Label>
-              <Input
-                id="linkedin"
-                value={formData.socialMedia.linkedin}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    socialMedia: { ...formData.socialMedia, linkedin: e.target.value },
-                  })
-                }
-                placeholder="https://linkedin.com/..."
-              />
-            </div>
+            {(["facebook", "instagram", "linkedin"] as const).map((key) => (
+              <div key={key} className="space-y-2">
+                <Label htmlFor={key}>{key.toUpperCase()} URL</Label>
+                <Input
+                  id={key}
+                  value={formData.socialMedia[key]}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      socialMedia: {
+                        ...formData.socialMedia,
+                        [key]: e.target.value,
+                      },
+                    })
+                  }
+                  placeholder={`https://${key}.com/...`}
+                />
+              </div>
+            ))}
           </CardContent>
         </Card>
 

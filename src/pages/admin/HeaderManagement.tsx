@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { Save, Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
+/* ===== TYPES ===== */
 interface NavLink {
   id: string;
   href: string;
@@ -33,20 +34,33 @@ interface NavLink {
   active: boolean;
 }
 
+interface HeaderData {
+  logoText: string;
+  logoFullText: string;
+  mode: string;
+}
+
+interface NavLinkForm {
+  href: string;
+  label: string;
+  order: number;
+  active: boolean;
+}
+
 const HeaderManagement = () => {
   const queryClient = useQueryClient();
-  
-  const { data: header, isLoading: headerLoading } = useQuery({
+
+  const { data: header, isLoading: headerLoading } = useQuery<HeaderData>({
     queryKey: ["header"],
     queryFn: api.getHeader,
   });
 
-  const { data: navLinks, isLoading: navLinksLoading } = useQuery({
+  const { data: navLinks, isLoading: navLinksLoading } = useQuery<NavLink[]>({
     queryKey: ["navLinks"],
     queryFn: api.getNavLinks,
   });
 
-  const [headerData, setHeaderData] = useState({
+  const [headerData, setHeaderData] = useState<HeaderData>({
     logoText: "",
     logoFullText: "",
     mode: "fixed",
@@ -54,7 +68,7 @@ const HeaderManagement = () => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLink, setEditingLink] = useState<NavLink | null>(null);
-  const [linkFormData, setLinkFormData] = useState({
+  const [linkFormData, setLinkFormData] = useState<NavLinkForm>({
     href: "",
     label: "",
     order: 1,
@@ -71,8 +85,9 @@ const HeaderManagement = () => {
     }
   }, [header]);
 
+  /* ===== MUTATIONS (NO ANY) ===== */
   const updateHeaderMutation = useMutation({
-    mutationFn: (data: any) => api.updateHeader(data),
+    mutationFn: (data: HeaderData) => api.updateHeader(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["header"] });
       toast.success("Header berhasil diperbarui!");
@@ -81,7 +96,7 @@ const HeaderManagement = () => {
   });
 
   const createLinkMutation = useMutation({
-    mutationFn: api.createNavLink,
+    mutationFn: (data: NavLinkForm) => api.createNavLink(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navLinks"] });
       toast.success("Nav link berhasil ditambahkan!");
@@ -92,7 +107,13 @@ const HeaderManagement = () => {
   });
 
   const updateLinkMutation = useMutation({
-    mutationFn: ({ id, ...data }: any) => api.updateNavLink(id, data),
+    mutationFn: (payload: { id: string } & NavLinkForm) =>
+      api.updateNavLink(payload.id, {
+        href: payload.href,
+        label: payload.label,
+        order: payload.order,
+        active: payload.active,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navLinks"] });
       toast.success("Nav link berhasil diperbarui!");
@@ -104,7 +125,7 @@ const HeaderManagement = () => {
   });
 
   const deleteLinkMutation = useMutation({
-    mutationFn: api.deleteNavLink,
+    mutationFn: (id: string) => api.deleteNavLink(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navLinks"] });
       toast.success("Nav link berhasil dihapus!");
@@ -156,149 +177,43 @@ const HeaderManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Header & Navigation</h1>
-        <p className="text-muted-foreground">
-          Kelola header dan menu navigasi website
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmitHeader} className="space-y-6">
+      {/* ---- HEADER FORM ---- */}
+      <form onSubmit={handleSubmitHeader}>
         <Card>
           <CardHeader>
             <CardTitle>Pengaturan Header</CardTitle>
             <CardDescription>Logo dan mode header</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="logoText">Logo Text (Singkat)</Label>
-                <Input
-                  id="logoText"
-                  value={headerData.logoText}
-                  onChange={(e) => setHeaderData({ ...headerData, logoText: e.target.value })}
-                  placeholder="PM"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="logoFullText">Logo Text (Lengkap)</Label>
-                <Input
-                  id="logoFullText"
-                  value={headerData.logoFullText}
-                  onChange={(e) => setHeaderData({ ...headerData, logoFullText: e.target.value })}
-                  placeholder="Praktisi Mengajar"
-                />
-              </div>
+          <CardContent className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label>Logo Singkat</Label>
+              <Input
+                value={headerData.logoText}
+                onChange={(e) => setHeaderData({ ...headerData, logoText: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Logo Lengkap</Label>
+              <Input
+                value={headerData.logoFullText}
+                onChange={(e) => setHeaderData({ ...headerData, logoFullText: e.target.value })}
+              />
             </div>
           </CardContent>
         </Card>
-
-        <div className="flex justify-end">
-          <Button type="submit" size="lg" disabled={updateHeaderMutation.isPending}>
-            {updateHeaderMutation.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Menyimpan...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Simpan Header
-              </>
-            )}
+        <div className="flex justify-end mt-4">
+          <Button type="submit">
+            <Save className="w-4 h-4 mr-2" />
+            Simpan Header
           </Button>
         </div>
       </form>
 
-      {/* Navigation Links */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Menu Navigasi</h2>
-          <p className="text-sm text-muted-foreground">Kelola link menu header</p>
-        </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetLinkForm}>
-              <Plus className="w-4 h-4 mr-2" />
-              Tambah Link
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {editingLink ? "Edit Nav Link" : "Tambah Nav Link"}
-              </DialogTitle>
-              <DialogDescription>
-                Isi informasi menu navigasi
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmitLink} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="label">Label *</Label>
-                <Input
-                  id="label"
-                  value={linkFormData.label}
-                  onChange={(e) => setLinkFormData({ ...linkFormData, label: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="href">Link / Anchor *</Label>
-                <Input
-                  id="href"
-                  value={linkFormData.href}
-                  onChange={(e) => setLinkFormData({ ...linkFormData, href: e.target.value })}
-                  placeholder="#layanan"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="order">Urutan</Label>
-                <Input
-                  id="order"
-                  type="number"
-                  value={linkFormData.order}
-                  onChange={(e) => setLinkFormData({ ...linkFormData, order: parseInt(e.target.value) })}
-                  min="1"
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="active">Aktif</Label>
-                <Switch
-                  id="active"
-                  checked={linkFormData.active}
-                  onCheckedChange={(checked) => setLinkFormData({ ...linkFormData, active: checked })}
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setDialogOpen(false);
-                    setEditingLink(null);
-                    resetLinkForm();
-                  }}
-                >
-                  Batal
-                </Button>
-                <Button type="submit">
-                  {editingLink ? "Perbarui" : "Tambah"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
+      {/* ---- NAVIGATION TABLE ---- */}
       <Card>
         <CardHeader>
-          <CardTitle>Daftar Menu Navigasi</CardTitle>
-          <CardDescription>Total: {navLinks?.length || 0} link</CardDescription>
+          <CardTitle>Menu Navigasi</CardTitle>
+          <CardDescription>Total: {navLinks?.length || 0}</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -308,41 +223,27 @@ const HeaderManagement = () => {
                 <TableHead>Label</TableHead>
                 <TableHead>Link</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Aksi</TableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {navLinks?.sort((a: NavLink, b: NavLink) => a.order - b.order).map((link: NavLink) => (
+              {navLinks?.map((link) => (
                 <TableRow key={link.id}>
                   <TableCell>{link.order}</TableCell>
-                  <TableCell className="font-medium">{link.label}</TableCell>
+                  <TableCell>{link.label}</TableCell>
                   <TableCell>{link.href}</TableCell>
+                  <TableCell>{link.active ? "Aktif" : "Nonaktif"}</TableCell>
                   <TableCell>
-                    <span className={link.active ? "text-green-600" : "text-muted-foreground"}>
-                      {link.active ? "Aktif" : "Nonaktif"}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditLink(link)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          if (confirm("Yakin ingin menghapus link ini?")) {
-                            deleteLinkMutation.mutate(link.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <Button size="sm" onClick={() => handleEditLink(link)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteLinkMutation.mutate(link.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

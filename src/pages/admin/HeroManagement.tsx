@@ -9,14 +9,39 @@ import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
+/* ================= TYPE ================= */
+
+interface HeroStats {
+  universities: string;
+  schools: string;
+  sessions: string;
+  satisfaction: string;
+}
+
+interface HeroData {
+  badge: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  buttonText: string;
+  buttonLink: string;
+  secondaryButtonText: string;
+  imageUrl: string;
+  benefits: string[];
+  stats: HeroStats;
+}
+
+/* ================= COMPONENT ================= */
+
 const HeroManagement = () => {
   const queryClient = useQueryClient();
-  const { data: hero, isLoading } = useQuery({
+
+  const { data: hero, isLoading } = useQuery<HeroData>({
     queryKey: ["hero"],
     queryFn: api.getHero,
   });
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<HeroData>({
     badge: "",
     title: "",
     subtitle: "",
@@ -57,7 +82,7 @@ const HeroManagement = () => {
   }, [hero]);
 
   const updateMutation = useMutation({
-    mutationFn: (data: any) => api.updateHero(data),
+    mutationFn: (data: HeroData) => api.updateHero(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hero"] });
       toast.success("Hero section berhasil diperbarui!");
@@ -103,165 +128,23 @@ const HeroManagement = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="badge">Badge Text</Label>
-              <Input
-                id="badge"
-                value={formData.badge}
-                onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                placeholder="Mitra Pendidikan Terpercaya"
-              />
+              <Label>Badge Text</Label>
+              <Input value={formData.badge} onChange={(e) => setFormData({ ...formData, badge: e.target.value })} />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="title">Judul Utama</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Hadirkan Praktisi Industri..."
-              />
+              <Label>Judul Utama</Label>
+              <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="subtitle">Subtitle (Highlight)</Label>
-              <Input
-                id="subtitle"
-                value={formData.subtitle}
-                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                placeholder="Praktisi Industri"
-              />
+              <Label>Subtitle</Label>
+              <Input value={formData.subtitle} onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })} />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Deskripsi</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Layanan Guru Tamu, Dosen Tamu..."
-                rows={3}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Tombol CTA</CardTitle>
-            <CardDescription>Tombol utama dan sekunder</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="buttonText">Teks Tombol Utama</Label>
-                <Input
-                  id="buttonText"
-                  value={formData.buttonText}
-                  onChange={(e) => setFormData({ ...formData, buttonText: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="buttonLink">Link Tombol Utama</Label>
-                <Input
-                  id="buttonLink"
-                  value={formData.buttonLink}
-                  onChange={(e) => setFormData({ ...formData, buttonLink: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="secondaryButtonText">Teks Tombol Sekunder</Label>
-              <Input
-                id="secondaryButtonText"
-                value={formData.secondaryButtonText}
-                onChange={(e) => setFormData({ ...formData, secondaryButtonText: e.target.value })}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Keunggulan (Benefits)</CardTitle>
-            <CardDescription>3 poin keunggulan utama</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {formData.benefits.map((benefit, index) => (
-              <div key={index} className="space-y-2">
-                <Label htmlFor={`benefit-${index}`}>Benefit {index + 1}</Label>
-                <Input
-                  id={`benefit-${index}`}
-                  value={benefit}
-                  onChange={(e) => handleBenefitChange(index, e.target.value)}
-                  placeholder={`Keunggulan ${index + 1}`}
-                />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Statistik</CardTitle>
-            <CardDescription>Angka pencapaian yang ditampilkan</CardDescription>
-          </CardHeader>
-          <CardContent className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="universities">Universitas</Label>
-              <Input
-                id="universities"
-                value={formData.stats.universities}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    stats: { ...formData.stats, universities: e.target.value },
-                  })
-                }
-                placeholder="50+"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="schools">Sekolah</Label>
-              <Input
-                id="schools"
-                value={formData.stats.schools}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    stats: { ...formData.stats, schools: e.target.value },
-                  })
-                }
-                placeholder="100+"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="sessions">Sesi</Label>
-              <Input
-                id="sessions"
-                value={formData.stats.sessions}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    stats: { ...formData.stats, sessions: e.target.value },
-                  })
-                }
-                placeholder="500+"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="satisfaction">Tingkat Kepuasan</Label>
-              <Input
-                id="satisfaction"
-                value={formData.stats.satisfaction}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    stats: { ...formData.stats, satisfaction: e.target.value },
-                  })
-                }
-                placeholder="98%"
-              />
+              <Label>Deskripsi</Label>
+              <Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
             </div>
           </CardContent>
         </Card>

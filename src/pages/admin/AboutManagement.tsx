@@ -4,19 +4,38 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
+/* ================= TYPES ================= */
+
+interface AboutFormData {
+  badge: string;
+  title: string;
+  description1: string;
+  description2: string;
+  whyChooseUs: string[];
+}
+
+/* ================= COMPONENT ================= */
+
 const AboutManagement = () => {
   const queryClient = useQueryClient();
-  const { data: about, isLoading } = useQuery({
+
+  const { data: about, isLoading } = useQuery<AboutFormData>({
     queryKey: ["about"],
     queryFn: api.getAbout,
   });
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AboutFormData>({
     badge: "",
     title: "",
     description1: "",
@@ -31,13 +50,15 @@ const AboutManagement = () => {
         title: about.title || "",
         description1: about.description1 || "",
         description2: about.description2 || "",
-        whyChooseUs: about.whyChooseUs || ["", "", "", "", "", ""],
+        whyChooseUs: about.whyChooseUs?.length
+          ? about.whyChooseUs
+          : ["", "", "", "", "", ""],
       });
     }
   }, [about]);
 
   const updateMutation = useMutation({
-    mutationFn: (data: any) => api.updateAbout(data),
+    mutationFn: (data: AboutFormData) => api.updateAbout(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["about"] });
       toast.success("About section berhasil diperbarui!");
@@ -45,7 +66,7 @@ const AboutManagement = () => {
     onError: () => toast.error("Gagal memperbarui about section"),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     updateMutation.mutate(formData);
   };
@@ -74,10 +95,13 @@ const AboutManagement = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Konten Utama */}
         <Card>
           <CardHeader>
             <CardTitle>Konten Utama</CardTitle>
-            <CardDescription>Teks dan informasi pada about section</CardDescription>
+            <CardDescription>
+              Teks dan informasi pada about section
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -85,7 +109,9 @@ const AboutManagement = () => {
               <Input
                 id="badge"
                 value={formData.badge}
-                onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, badge: e.target.value })
+                }
               />
             </div>
 
@@ -94,7 +120,9 @@ const AboutManagement = () => {
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
               />
             </div>
 
@@ -103,7 +131,9 @@ const AboutManagement = () => {
               <Textarea
                 id="description1"
                 value={formData.description1}
-                onChange={(e) => setFormData({ ...formData, description1: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description1: e.target.value })
+                }
                 rows={3}
               />
             </div>
@@ -113,13 +143,16 @@ const AboutManagement = () => {
               <Textarea
                 id="description2"
                 value={formData.description2}
-                onChange={(e) => setFormData({ ...formData, description2: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description2: e.target.value })
+                }
                 rows={3}
               />
             </div>
           </CardContent>
         </Card>
 
+        {/* Mengapa Memilih Kami */}
         <Card>
           <CardHeader>
             <CardTitle>Mengapa Memilih Kami</CardTitle>
@@ -132,7 +165,9 @@ const AboutManagement = () => {
                 <Input
                   id={`why-${index}`}
                   value={item}
-                  onChange={(e) => handleWhyChooseUsChange(index, e.target.value)}
+                  onChange={(e) =>
+                    handleWhyChooseUsChange(index, e.target.value)
+                  }
                   placeholder={`Alasan ${index + 1}`}
                 />
               </div>

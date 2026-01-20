@@ -32,6 +32,8 @@ import { toast } from "sonner";
 import { Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
 
+/* ================= TYPES ================= */
+
 interface ProcessStep {
   id: string;
   number: string;
@@ -40,6 +42,20 @@ interface ProcessStep {
   description: string;
   order: number;
 }
+
+interface ProcessFormData {
+  number: string;
+  iconName: string;
+  title: string;
+  description: string;
+  order: number;
+}
+
+interface UpdateProcessPayload extends ProcessFormData {
+  id: string;
+}
+
+/* ================= CONSTANT ================= */
 
 const iconOptions = [
   "MessageSquare",
@@ -52,11 +68,14 @@ const iconOptions = [
   "Users",
 ];
 
+/* ================= COMPONENT ================= */
+
 const ProcessManagement = () => {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingStep, setEditingStep] = useState<ProcessStep | null>(null);
-  const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = useState<ProcessFormData>({
     number: "01",
     iconName: "MessageSquare",
     title: "",
@@ -64,13 +83,13 @@ const ProcessManagement = () => {
     order: 1,
   });
 
-  const { data: processSteps, isLoading } = useQuery({
+  const { data: processSteps, isLoading } = useQuery<ProcessStep[]>({
     queryKey: ["processSteps"],
     queryFn: api.getProcessSteps,
   });
 
   const createMutation = useMutation({
-    mutationFn: api.createProcessStep,
+    mutationFn: (data: ProcessFormData) => api.createProcessStep(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["processSteps"] });
       toast.success("Langkah proses berhasil ditambahkan!");
@@ -81,7 +100,8 @@ const ProcessManagement = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }: any) => api.updateProcessStep(id, data),
+    mutationFn: ({ id, ...data }: UpdateProcessPayload) =>
+      api.updateProcessStep(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["processSteps"] });
       toast.success("Langkah proses berhasil diperbarui!");
@@ -93,7 +113,7 @@ const ProcessManagement = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: api.deleteProcessStep,
+    mutationFn: (id: string) => api.deleteProcessStep(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["processSteps"] });
       toast.success("Langkah proses berhasil dihapus!");
@@ -148,6 +168,7 @@ const ProcessManagement = () => {
           <h1 className="text-3xl font-bold">Process Steps</h1>
           <p className="text-muted-foreground">Kelola langkah-langkah proses</p>
         </div>
+
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm}>
@@ -155,6 +176,7 @@ const ProcessManagement = () => {
               Tambah Langkah
             </Button>
           </DialogTrigger>
+
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>
@@ -164,24 +186,27 @@ const ProcessManagement = () => {
                 Isi informasi langkah proses yang ingin ditampilkan
               </DialogDescription>
             </DialogHeader>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="number">Nomor Langkah</Label>
+                  <Label htmlFor="number">Nomor</Label>
                   <Input
                     id="number"
                     value={formData.number}
-                    onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-                    placeholder="01"
-                    maxLength={2}
+                    onChange={(e) =>
+                      setFormData({ ...formData, number: e.target.value })
+                    }
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="iconName">Icon</Label>
+                  <Label>Icon</Label>
                   <Select
                     value={formData.iconName}
-                    onValueChange={(value) => setFormData({ ...formData, iconName: value })}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, iconName: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -198,43 +223,41 @@ const ProcessManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="title">Judul Langkah *</Label>
+                <Label>Judul</Label>
                 <Input
-                  id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Konsultasi Kebutuhan"
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Deskripsi *</Label>
+                <Label>Deskripsi</Label>
                 <Textarea
-                  id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   rows={3}
-                  placeholder="Penjelasan lengkap tentang langkah ini..."
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="order">Urutan</Label>
+                <Label>Urutan</Label>
                 <Input
-                  id="order"
                   type="number"
                   value={formData.order}
                   onChange={(e) => {
-                    const order = parseInt(e.target.value);
-                    setFormData({ 
-                      ...formData, 
+                    const order = Number(e.target.value);
+                    setFormData({
+                      ...formData,
                       order,
-                      number: String(order).padStart(2, "0")
+                      number: String(order).padStart(2, "0"),
                     });
                   }}
-                  min="1"
                 />
               </div>
 
@@ -270,7 +293,7 @@ const ProcessManagement = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>No.</TableHead>
+                <TableHead>No</TableHead>
                 <TableHead>Icon</TableHead>
                 <TableHead>Judul</TableHead>
                 <TableHead>Deskripsi</TableHead>
@@ -278,36 +301,40 @@ const ProcessManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {processSteps?.sort((a: ProcessStep, b: ProcessStep) => a.order - b.order).map((step: ProcessStep) => (
-                <TableRow key={step.id}>
-                  <TableCell className="font-bold">{step.number}</TableCell>
-                  <TableCell>{step.iconName}</TableCell>
-                  <TableCell className="font-medium">{step.title}</TableCell>
-                  <TableCell className="max-w-md truncate">{step.description}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(step)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          if (confirm("Yakin ingin menghapus langkah ini?")) {
-                            deleteMutation.mutate(step.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {processSteps
+                ?.sort((a, b) => a.order - b.order)
+                .map((step) => (
+                  <TableRow key={step.id}>
+                    <TableCell>{step.number}</TableCell>
+                    <TableCell>{step.iconName}</TableCell>
+                    <TableCell>{step.title}</TableCell>
+                    <TableCell className="truncate max-w-md">
+                      {step.description}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(step)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => {
+                            if (confirm("Yakin ingin menghapus?")) {
+                              deleteMutation.mutate(step.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </CardContent>

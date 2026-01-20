@@ -27,10 +27,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
+
+/* ================= TYPES ================= */
 
 interface Service {
   id: string;
@@ -40,6 +48,20 @@ interface Service {
   features: string[];
   order: number;
 }
+
+interface ServiceFormData {
+  iconName: string;
+  title: string;
+  description: string;
+  features: string[];
+  order: number;
+}
+
+interface UpdateServicePayload extends ServiceFormData {
+  id: string;
+}
+
+/* ================= CONSTANT ================= */
 
 const iconOptions = [
   "GraduationCap",
@@ -52,11 +74,14 @@ const iconOptions = [
   "Star",
 ];
 
+/* ================= COMPONENT ================= */
+
 const ServicesManagement = () => {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
-  const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = useState<ServiceFormData>({
     iconName: "GraduationCap",
     title: "",
     description: "",
@@ -64,13 +89,13 @@ const ServicesManagement = () => {
     order: 1,
   });
 
-  const { data: services, isLoading } = useQuery({
+  const { data: services, isLoading } = useQuery<Service[]>({
     queryKey: ["services"],
     queryFn: api.getServices,
   });
 
   const createMutation = useMutation({
-    mutationFn: api.createService,
+    mutationFn: (data: ServiceFormData) => api.createService(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
       toast.success("Service berhasil ditambahkan!");
@@ -81,7 +106,8 @@ const ServicesManagement = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }: any) => api.updateService(id, data),
+    mutationFn: ({ id, ...data }: UpdateServicePayload) =>
+      api.updateService(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
       toast.success("Service berhasil diperbarui!");
@@ -93,7 +119,7 @@ const ServicesManagement = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: api.deleteService,
+    mutationFn: (id: string) => api.deleteService(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
       toast.success("Service berhasil dihapus!");
@@ -102,12 +128,13 @@ const ServicesManagement = () => {
   });
 
   const resetForm = () => {
+    const nextOrder = (services?.length || 0) + 1;
     setFormData({
       iconName: "GraduationCap",
       title: "",
       description: "",
       features: ["", "", ""],
-      order: (services?.length || 0) + 1,
+      order: nextOrder,
     });
   };
 
@@ -153,6 +180,7 @@ const ServicesManagement = () => {
           <h1 className="text-3xl font-bold">Services</h1>
           <p className="text-muted-foreground">Kelola layanan yang ditawarkan</p>
         </div>
+
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm}>
@@ -160,6 +188,7 @@ const ServicesManagement = () => {
               Tambah Service
             </Button>
           </DialogTrigger>
+
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
@@ -169,33 +198,38 @@ const ServicesManagement = () => {
                 Isi informasi layanan yang ingin ditampilkan
               </DialogDescription>
             </DialogHeader>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Judul Service *</Label>
+                <Label>Judul Service *</Label>
                 <Input
-                  id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Deskripsi *</Label>
+                <Label>Deskripsi *</Label>
                 <Textarea
-                  id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   rows={3}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="iconName">Icon</Label>
+                <Label>Icon</Label>
                 <Select
                   value={formData.iconName}
-                  onValueChange={(value) => setFormData({ ...formData, iconName: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, iconName: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -216,20 +250,26 @@ const ServicesManagement = () => {
                   <Input
                     key={index}
                     value={feature}
-                    onChange={(e) => handleFeatureChange(index, e.target.value)}
+                    onChange={(e) =>
+                      handleFeatureChange(index, e.target.value)
+                    }
                     placeholder={`Feature ${index + 1}`}
                   />
                 ))}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="order">Urutan</Label>
+                <Label>Urutan</Label>
                 <Input
-                  id="order"
                   type="number"
                   value={formData.order}
-                  onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
-                  min="1"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      order: Number(e.target.value),
+                    })
+                  }
+                  min={1}
                 />
               </div>
 
@@ -273,36 +313,42 @@ const ServicesManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {services?.sort((a: Service, b: Service) => a.order - b.order).map((service: Service) => (
-                <TableRow key={service.id}>
-                  <TableCell>{service.order}</TableCell>
-                  <TableCell>{service.iconName}</TableCell>
-                  <TableCell className="font-medium">{service.title}</TableCell>
-                  <TableCell className="max-w-md truncate">{service.description}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(service)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          if (confirm("Yakin ingin menghapus service ini?")) {
-                            deleteMutation.mutate(service.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {services
+                ?.sort((a, b) => a.order - b.order)
+                .map((service) => (
+                  <TableRow key={service.id}>
+                    <TableCell>{service.order}</TableCell>
+                    <TableCell>{service.iconName}</TableCell>
+                    <TableCell className="font-medium">
+                      {service.title}
+                    </TableCell>
+                    <TableCell className="max-w-md truncate">
+                      {service.description}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(service)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm("Yakin ingin menghapus service ini?")) {
+                              deleteMutation.mutate(service.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </CardContent>

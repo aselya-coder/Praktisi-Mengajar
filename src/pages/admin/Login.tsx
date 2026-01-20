@@ -9,10 +9,21 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Lock } from "lucide-react";
 
+/* ===== TYPE ===== */
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+
+/* ===== COMPONENT ===== */
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
@@ -21,15 +32,17 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const users: any = await api.login(email, password);
-      
+      const users: User[] = await api.login(email, password);
+
       if (users && users.length > 0) {
         const user = users[0];
+
         login({
           id: user.id,
           email: user.email,
           name: user.name,
         });
+
         toast.success("Login berhasil!");
         navigate("/admin/dashboard");
       } else {
@@ -54,6 +67,7 @@ const Login = () => {
             Masuk untuk mengelola konten website Praktisi Mengajar
           </CardDescription>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
@@ -67,6 +81,7 @@ const Login = () => {
                 required
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -78,10 +93,12 @@ const Login = () => {
                 required
               />
             </div>
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Memproses..." : "Masuk"}
             </Button>
           </form>
+
           <p className="text-sm text-muted-foreground text-center mt-4">
             Demo: admin@praktisimengajar.id / admin123
           </p>

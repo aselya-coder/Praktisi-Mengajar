@@ -20,10 +20,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, Loader2, Star } from "lucide-react";
 import { useState } from "react";
+
+/* ================= TYPES ================= */
 
 interface Testimonial {
   id: string;
@@ -34,11 +42,27 @@ interface Testimonial {
   rating: number;
 }
 
+interface TestimonialFormData {
+  quote: string;
+  name: string;
+  role: string;
+  institution: string;
+  rating: number;
+}
+
+interface UpdateTestimonialPayload extends TestimonialFormData {
+  id: string;
+}
+
+/* ================= COMPONENT ================= */
+
 const TestimonialsManagement = () => {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
-  const [formData, setFormData] = useState({
+  const [editingTestimonial, setEditingTestimonial] =
+    useState<Testimonial | null>(null);
+
+  const [formData, setFormData] = useState<TestimonialFormData>({
     quote: "",
     name: "",
     role: "",
@@ -46,13 +70,13 @@ const TestimonialsManagement = () => {
     rating: 5,
   });
 
-  const { data: testimonials, isLoading } = useQuery({
+  const { data: testimonials, isLoading } = useQuery<Testimonial[]>({
     queryKey: ["testimonials"],
     queryFn: api.getTestimonials,
   });
 
   const createMutation = useMutation({
-    mutationFn: api.createTestimonial,
+    mutationFn: (data: TestimonialFormData) => api.createTestimonial(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["testimonials"] });
       toast.success("Testimonial berhasil ditambahkan!");
@@ -63,7 +87,8 @@ const TestimonialsManagement = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }: any) => api.updateTestimonial(id, data),
+    mutationFn: ({ id, ...data }: UpdateTestimonialPayload) =>
+      api.updateTestimonial(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["testimonials"] });
       toast.success("Testimonial berhasil diperbarui!");
@@ -75,7 +100,7 @@ const TestimonialsManagement = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: api.deleteTestimonial,
+    mutationFn: (id: string) => api.deleteTestimonial(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["testimonials"] });
       toast.success("Testimonial berhasil dihapus!");
@@ -108,7 +133,10 @@ const TestimonialsManagement = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingTestimonial) {
-      updateMutation.mutate({ id: editingTestimonial.id, ...formData });
+      updateMutation.mutate({
+        id: editingTestimonial.id,
+        ...formData,
+      });
     } else {
       createMutation.mutate(formData);
     }
@@ -129,6 +157,7 @@ const TestimonialsManagement = () => {
           <h1 className="text-3xl font-bold">Testimonials</h1>
           <p className="text-muted-foreground">Kelola testimoni dari klien</p>
         </div>
+
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm}>
@@ -136,76 +165,90 @@ const TestimonialsManagement = () => {
               Tambah Testimonial
             </Button>
           </DialogTrigger>
+
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>
-                {editingTestimonial ? "Edit Testimonial" : "Tambah Testimonial Baru"}
+                {editingTestimonial
+                  ? "Edit Testimonial"
+                  : "Tambah Testimonial Baru"}
               </DialogTitle>
               <DialogDescription>
                 Isi informasi testimonial dari klien
               </DialogDescription>
             </DialogHeader>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="quote">Kutipan Testimonial *</Label>
+                <Label>Kutipan Testimonial *</Label>
                 <Textarea
-                  id="quote"
                   value={formData.quote}
-                  onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, quote: e.target.value })
+                  }
                   rows={4}
-                  placeholder="Masukkan testimonial dari klien..."
                   required
                 />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nama Lengkap *</Label>
+                  <Label>Nama Lengkap *</Label>
                   <Input
-                    id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Dr. Siti Nurhaliza, M.Pd."
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="role">Jabatan *</Label>
+                  <Label>Jabatan *</Label>
                   <Input
-                    id="role"
                     value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    placeholder="Kepala Sekolah"
+                    onChange={(e) =>
+                      setFormData({ ...formData, role: e.target.value })
+                    }
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="institution">Institusi *</Label>
+                <Label>Institusi *</Label>
                 <Input
-                  id="institution"
                   value={formData.institution}
-                  onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
-                  placeholder="SMAN 1 Jakarta"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      institution: e.target.value,
+                    })
+                  }
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="rating">Rating (1-5)</Label>
+                <Label>Rating (1-5)</Label>
                 <Input
-                  id="rating"
                   type="number"
-                  min="1"
-                  max="5"
+                  min={1}
+                  max={5}
                   value={formData.rating}
-                  onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      rating: Number(e.target.value),
+                    })
+                  }
                 />
                 <div className="flex gap-1">
                   {[...Array(formData.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-accent text-accent" />
+                    <Star
+                      key={i}
+                      className="w-5 h-5 fill-accent text-accent"
+                    />
                   ))}
                 </div>
               </div>
@@ -250,15 +293,20 @@ const TestimonialsManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {testimonials?.map((testimonial: Testimonial) => (
+              {testimonials?.map((testimonial) => (
                 <TableRow key={testimonial.id}>
-                  <TableCell className="font-medium">{testimonial.name}</TableCell>
+                  <TableCell className="font-medium">
+                    {testimonial.name}
+                  </TableCell>
                   <TableCell>{testimonial.role}</TableCell>
                   <TableCell>{testimonial.institution}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-accent text-accent" />
+                        <Star
+                          key={i}
+                          className="w-4 h-4 fill-accent text-accent"
+                        />
                       ))}
                     </div>
                   </TableCell>
@@ -275,7 +323,11 @@ const TestimonialsManagement = () => {
                         variant="destructive"
                         size="sm"
                         onClick={() => {
-                          if (confirm("Yakin ingin menghapus testimonial ini?")) {
+                          if (
+                            confirm(
+                              "Yakin ingin menghapus testimonial ini?"
+                            )
+                          ) {
                             deleteMutation.mutate(testimonial.id);
                           }
                         }}
