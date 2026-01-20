@@ -32,8 +32,13 @@ const Header = () => {
     queryFn: api.getNavLinks,
   });
 
+  // ✅ FIXED WHATSAPP LINK
+  const whatsappMessage =
+    "Halo, saya tertarik dengan layanan Praktisi Mengajar";
+
   const whatsappLink =
-    "https://wa.me/6285646420488?text=Halo,%20saya%20tertarik%20dengan%20layanan%20Praktisi%20Mengajar";
+    "https://api.whatsapp.com/send?phone=6285646420488&text=" +
+    encodeURIComponent(whatsappMessage);
 
   if (!header) return null;
 
@@ -56,41 +61,49 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks
-              .filter((link: NavLink) => link.active)
-              .sort((a: NavLink, b: NavLink) => a.order - b.order)
-              .map((link: NavLink) => (
+              .filter((link) => link.active)
+              .sort((a, b) => a.order - b.order)
+              .map((link) => (
                 <a
                   key={link.id}
                   href={link.href}
-                  className="text-muted-foreground hover:text-primary font-medium transition-colors duration-300"
+                  className="text-muted-foreground hover:text-primary font-medium transition-colors"
                 >
                   {link.label}
                 </a>
               ))}
           </nav>
 
-          {/* CTA Buttons */}
+          {/* CTA Desktop */}
           <div className="hidden md:flex items-center gap-3">
             <Button variant="outline" size="sm" asChild>
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Phone className="w-4 h-4" />
                 Konsultasi
               </a>
             </Button>
+
             <Button variant="default" size="sm" asChild>
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Ajukan Praktisi
               </a>
             </Button>
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Toggle */}
           <button
-            className="lg:hidden p-2 text-foreground"
+            className="lg:hidden p-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
 
@@ -105,27 +118,39 @@ const Header = () => {
             >
               <nav className="py-4 flex flex-col gap-4">
                 {navLinks
-                  .filter((link: NavLink) => link.active)
-                  .sort((a: NavLink, b: NavLink) => a.order - b.order)
-                  .map((link: NavLink) => (
+                  .filter((link) => link.active)
+                  .sort((a, b) => a.order - b.order)
+                  .map((link) => (
                     <a
                       key={link.id}
                       href={link.href}
-                      className="text-muted-foreground hover:text-primary font-medium transition-colors px-2 py-2"
+                      className="px-2 py-2"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {link.label}
                     </a>
                   ))}
+
                 <div className="flex flex-col gap-3 pt-4 border-t border-border">
                   <Button variant="whatsapp" size="lg" asChild>
-                    <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
                       <Phone className="w-4 h-4" />
                       Konsultasi via WhatsApp
                     </a>
                   </Button>
+
                   <Button variant="default" size="lg" asChild>
-                    <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
                       Ajukan Praktisi Mengajar
                     </a>
                   </Button>
