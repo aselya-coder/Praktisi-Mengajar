@@ -4,7 +4,6 @@ import { ArrowRight, MessageCircle, CheckCircle } from "lucide-react";
 import heroImage from "@/assets/hero-image.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { toast } from "sonner";
 
 const Hero = () => {
   // FETCH DATA FROM API - NO HARDCODE
@@ -13,17 +12,14 @@ const Hero = () => {
     queryFn: api.getHero,
   });
 
+  // ✅ WhatsApp Link with Auto Message
+  const whatsappLink =
+    "https://wa.me/6285646420488?text=" +
+    encodeURIComponent("Halo, saya tertarik dengan layanan Praktisi Mengajar");
+
   if (!hero) return null;
 
   const benefits = hero.benefits || [];
-
-  const handleAjukanPraktisi = () => {
-    toast.success("Anda berhasil mengajukan praktisi mengajar!");
-  };
-
-  const handleKonsultasiGratis = () => {
-    toast.info("Anda akan segera dihubungi untuk konsultasi gratis.");
-  };
 
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
@@ -94,17 +90,21 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
               className="flex flex-col sm:flex-row gap-4">
-              <Button variant="hero" size="xl" onClick={handleAjukanPraktisi}>
-                <div className="flex items-center gap-2">
-                  {hero.buttonText}
-                  <ArrowRight className="w-5 h-5" />
-                </div>
+              <Button variant="hero" size="xl" asChild>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                  <div className="flex items-center gap-2">
+                    {hero.buttonText}
+                    <ArrowRight className="w-5 h-5" />
+                  </div>
+                </a>
               </Button>
-              <Button variant="heroOutline" size="xl" onClick={handleKonsultasiGratis}>
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5" />
-                  {hero.secondaryButtonText}
-                </div>
+              <Button variant="heroOutline" size="xl" asChild>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="w-5 h-5" />
+                    {hero.secondaryButtonText}
+                  </div>
+                </a>
               </Button>
             </motion.div>
 

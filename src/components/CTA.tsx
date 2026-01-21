@@ -18,7 +18,7 @@ const CTA = () => {
     description: "Ajukan kebutuhan pengajar tamu, pembicara seminar, atau kolaborasi kurikulum. Tim kami akan merespons secepatnya.",
     buttonText: "Hubungi via WhatsApp",
     secondaryButtonText: "Konsultasi Gratis",
-    buttonLink: "https://wa.me/6285646420488",
+    buttonLink: "https://wa.me/6285646420488?text=Halo,%20saya%20tertarik%20dengan%20layanan%20Praktisi%20Mengajar",
     phone: "+62 856-4642-0488",
     email: "halo@praktisimengajar.id",
     location: "Indonesia",
@@ -26,7 +26,9 @@ const CTA = () => {
 
   const data = { ...defaults, ...(cta || {}) } as typeof defaults & Partial<typeof cta>;
 
-  const whatsappLink = data.buttonLink || "https://wa.me/6285646420488";
+  const whatsappLink =
+    "https://wa.me/6285646420488?text=" +
+    encodeURIComponent("Halo, saya tertarik dengan layanan Praktisi Mengajar");
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
