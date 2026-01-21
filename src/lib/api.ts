@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3001';
+const API_BASE = 'http://localhost:3002';
 
 async function fetchAPI<T>(endpoint: string): Promise<T> {
   const response = await fetch(`${API_BASE}${endpoint}`);

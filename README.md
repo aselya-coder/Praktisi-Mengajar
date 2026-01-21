@@ -4,6 +4,52 @@
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 
+## Admin Panel
+
+Website ini dilengkapi dengan Admin Panel untuk mengelola konten secara dinamis tanpa mengubah kode.
+
+### Cara Menjalankan Admin Panel
+
+1. **Jalankan JSON Server (API Mock)**:
+   ```sh
+   npm run server
+   ```
+   Server akan berjalan di `http://localhost:3002`
+
+2. **Jalankan Development Server**:
+   ```sh
+   npm run dev
+   ```
+   Website akan berjalan di `http://localhost:8081`
+
+3. **Akses Admin Panel**:
+   - Buka browser ke `http://localhost:8081/admin/login`
+   - Login dengan:
+     - Email: `admin@praktisimengajar.id`
+     - Password: `admin123`
+
+### Fitur Admin Panel
+
+- **Dashboard**: Ringkasan dan panduan penggunaan
+- **Hero Section**: Kelola judul, deskripsi, tombol, gambar
+- **Services**: Tambah/edit/hapus layanan
+- **Process Steps**: Kelola langkah-langkah proses
+- **Testimonials**: Kelola testimoni pelanggan
+- **About**: Edit informasi tentang perusahaan
+- **CTA & Contact**: Kelola call-to-action dan informasi kontak
+- **Header & Nav**: Atur logo, navigasi menu
+- **Footer**: Edit footer website
+
+### Cara Menggunakan
+
+1. Login ke admin panel
+2. Pilih menu yang ingin diedit
+3. Lakukan perubahan pada form
+4. Klik "Simpan Perubahan"
+5. Buka website utama untuk melihat hasil
+
+Semua perubahan akan langsung terlihat di website tanpa perlu restart server.
+
 ## How can I edit this code?
 
 There are several ways of editing your application.

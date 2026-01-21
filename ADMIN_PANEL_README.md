@@ -45,7 +45,7 @@ Buka terminal pertama dan jalankan:
 ```bash
 npm run server
 ```
-Server akan berjalan di `http://localhost:3001`
+Server akan berjalan di `http://localhost:3002`
 
 ### 3. Jalankan Development Server
 Buka terminal kedua dan jalankan:
