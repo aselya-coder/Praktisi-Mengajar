@@ -32,13 +32,10 @@ const Header = () => {
     queryFn: api.getNavLinks,
   });
 
-  // ✅ FIXED WHATSAPP LINK
-  const whatsappMessage =
-    "Halo, saya tertarik dengan layanan Praktisi Mengajar";
-
-  const whatsappLink =
-    "https://api.whatsapp.com/send?phone=6285646420488&text=" +
-    encodeURIComponent(whatsappMessage);
+  // ✅ FINAL WA LINK
+const whatsappLink =
+  "https://wa.me/6285646420488?text=" +
+  encodeURIComponent("Halo, saya tertarik dengan layanan Praktisi Mengajar");
 
   if (!header) return null;
 
@@ -137,7 +134,6 @@ const Header = () => {
                       href={whatsappLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={() => setIsMenuOpen(false)}
                     >
                       <Phone className="w-4 h-4" />
                       Konsultasi via WhatsApp
@@ -149,7 +145,6 @@ const Header = () => {
                       href={whatsappLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={() => setIsMenuOpen(false)}
                     >
                       Ajukan Praktisi Mengajar
                     </a>

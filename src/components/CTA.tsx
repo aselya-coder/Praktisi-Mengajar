@@ -11,9 +11,24 @@ const CTA = () => {
     queryFn: api.getCTA,
   });
 
-  if (!cta) return null;
+  // Provide automatic default content when API hasn't returned data yet
+  const defaults = {
+    badge: "Hubungi Kami",
+    title: "Siap Terhubung dengan Praktisi Pengajar",
+    description: "Ajukan kebutuhan pengajar tamu, pembicara seminar, atau kolaborasi kurikulum. Tim kami akan merespons secepatnya.",
+    buttonText: "Hubungi via WhatsApp",
+    secondaryButtonText: "Konsultasi Gratis",
+    buttonLink: "https://wa.me/6285646420488",
+    phone: "+62 856-4642-0488",
+    email: "halo@praktisimengajar.id",
+    location: "Indonesia",
+  };
 
-  const whatsappLink = cta.buttonLink || "https://wa.me/6285646420488";
+  const data = { ...defaults, ...(cta || {}) } as typeof defaults & Partial<typeof cta>;
+
+  const whatsappLink =
+    "https://wa.me/6285646420488?text=" +
+    encodeURIComponent("Halo, saya tertarik dengan layanan Praktisi Mengajar");
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,27 +64,27 @@ const CTA = () => {
             transition={{ duration: 0.6 }}
           >
             <span className="inline-block text-accent font-semibold text-sm uppercase tracking-wider mb-4">
-              {cta.badge}
+              {data.badge}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-              {cta.title}
+              {data.title}
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              {cta.description}
+              {data.description}
             </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Button variant="accent" size="xl" asChild>
                 <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  {cta.buttonText}
+                  {data.buttonText}
                   <ArrowRight className="w-5 h-5" />
                 </a>
               </Button>
               <Button variant="whatsapp" size="xl" asChild>
                 <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="w-5 h-5" />
-                  {cta.secondaryButtonText}
+                  {data.secondaryButtonText}
                 </a>
               </Button>
             </div>
@@ -82,7 +97,7 @@ const CTA = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Telepon / WhatsApp</p>
-                  <p className="font-medium text-foreground">{cta.phone}</p>
+                  <p className="font-medium text-foreground">{data.phone}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -91,7 +106,7 @@ const CTA = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium text-foreground">{cta.email}</p>
+                  <p className="font-medium text-foreground">{data.email}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -100,7 +115,7 @@ const CTA = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Lokasi</p>
-                  <p className="font-medium text-foreground">{cta.location}</p>
+                  <p className="font-medium text-foreground">{data.location}</p>
                 </div>
               </div>
             </div>
