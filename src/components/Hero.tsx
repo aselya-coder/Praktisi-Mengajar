@@ -13,36 +13,17 @@ const Hero = () => {
     queryFn: api.getHero,
   });
 
-  // ✅ WhatsApp Link with Auto Message
-  const whatsappLink =
-    "https://wa.me/6285646420488?text=" +
-    encodeURIComponent("Halo, saya tertarik dengan layanan Praktisi Mengajar");
+  if (!hero) return null;
 
-  // Provide automatic default content when API hasn't returned data yet
-  const defaults = {
-    badge: "Program Kolaborasi Kampus & Industri",
-    title: "Praktisi Mengajar untuk Kurikulum yang Relevan",
-    subtitle: "Mengajar",
-    description:
-      "Hadirkan ahli industri ke kelas Anda untuk meningkatkan kompetensi praktis mahasiswa dan siswa.",
-    benefits: [
-      "Materi berbasis industri",
-      "Narasumber berpengalaman",
-      "Jadwal fleksibel",
-    ],
-    buttonText: "Ajukan Praktisi",
-    secondaryButtonText: "Konsultasi Gratis",
-    stats: {
-      universities: 30,
-      schools: 120,
-      sessions: 450,
-      satisfaction: "98%",
-    },
-  } as const;
+  const benefits = hero.benefits || [];
 
-  const data = { ...defaults, ...(hero || {}), stats: { ...defaults.stats, ...(hero?.stats || {}) } };
+  const handleAjukanPraktisi = () => {
+    toast.success("Anda berhasil mengajukan praktisi mengajar!");
+  };
 
-  const benefits = data.benefits || [];
+  const handleKonsultasiGratis = () => {
+    toast.info("Anda akan segera dihubungi untuk konsultasi gratis.");
+  };
 
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
@@ -75,26 +56,20 @@ const Hero = () => {
             >
               <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
               <span className="text-sm font-medium text-primary-foreground/90">
-                {data.badge}
+                {hero.badge}
               </span>
             </motion.div>
 
             {/* Headline */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
-              {(data.subtitle && data.title.includes(data.subtitle))
-                ? (
-                  <>
-                    {data.title.split(data.subtitle)[0]}{" "}
-                    <span className="text-gradient">{data.subtitle}</span>{" "}
-                    {data.title.split(data.subtitle)[1]}
-                  </>
-                )
-                : data.title}
+              {hero.title.split(hero.subtitle)[0]}{" "}
+              <span className="text-gradient">{hero.subtitle}</span>{" "}
+              {hero.title.split(hero.subtitle)[1]}
             </h1>
 
             {/* Subheadline */}
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-xl">
-              {data.description}
+              {hero.description}
             </p>
 
             {/* Benefits */}
@@ -119,21 +94,17 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
               className="flex flex-col sm:flex-row gap-4">
-              <Button variant="hero" size="xl" asChild>
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  <div className="flex items-center gap-2">
-                    {data.buttonText}
-                    <ArrowRight className="w-5 h-5" />
-                  </div>
-                </a>
+              <Button variant="hero" size="xl" onClick={handleAjukanPraktisi}>
+                <div className="flex items-center gap-2">
+                  {hero.buttonText}
+                  <ArrowRight className="w-5 h-5" />
+                </div>
               </Button>
-              <Button variant="heroOutline" size="xl" asChild>
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  <div className="flex items-center gap-2">
-                    <MessageCircle className="w-5 h-5" />
-                    {data.secondaryButtonText}
-                  </div>
-                </a>
+              <Button variant="heroOutline" size="xl" onClick={handleKonsultasiGratis}>
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5" />
+                  {hero.secondaryButtonText}
+                </div>
               </Button>
             </motion.div>
 
@@ -148,11 +119,11 @@ const Hero = () => {
                 Dipercaya oleh institusi pendidikan terkemuka:
               </p>
               <div className="flex items-center gap-8 text-primary-foreground/40 text-sm font-medium">
-                <span>{data.stats.universities} Universitas</span>
+                <span>{hero.stats.universities} Universitas</span>
                 <span className="w-1 h-1 bg-primary-foreground/40 rounded-full" />
-                <span>{data.stats.schools} Sekolah</span>
+                <span>{hero.stats.schools} Sekolah</span>
                 <span className="w-1 h-1 bg-primary-foreground/40 rounded-full" />
-                <span>{data.stats.sessions} Sesi</span>
+                <span>{hero.stats.sessions} Sesi</span>
               </div>
             </motion.div>
           </motion.div>
@@ -167,7 +138,7 @@ const Hero = () => {
             {/* Floating Stats Cards */}
             <div className="relative">
               <div className="absolute top-10 right-0 bg-card/95 backdrop-blur-md rounded-xl p-6 shadow-elevated">
-                <div className="text-3xl font-bold text-primary">{data.stats.satisfaction}</div>
+                <div className="text-3xl font-bold text-primary">{hero.stats.satisfaction}</div>
                 <div className="text-sm text-muted-foreground">Tingkat Kepuasan</div>
               </div>
               <div className="absolute bottom-20 left-10 bg-card/95 backdrop-blur-md rounded-xl p-6 shadow-elevated">

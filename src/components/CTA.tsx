@@ -26,9 +26,7 @@ const CTA = () => {
 
   const data = { ...defaults, ...(cta || {}) } as typeof defaults & Partial<typeof cta>;
 
-  const whatsappLink =
-    "https://wa.me/6285646420488?text=" +
-    encodeURIComponent("Halo, saya tertarik dengan layanan Praktisi Mengajar");
+  const whatsappLink = data.buttonLink || "https://wa.me/6285646420488";
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
