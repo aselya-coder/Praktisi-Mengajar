@@ -24,12 +24,12 @@ const Header = () => {
 
   const { data: header } = useQuery<HeaderData>({
     queryKey: ["header"],
-    queryFn: api.getHeader,
+    queryFn: () => api.getHeader() as Promise<HeaderData>,
   });
 
   const { data: navLinks = [] } = useQuery<NavLink[]>({
     queryKey: ["navLinks"],
-    queryFn: api.getNavLinks,
+    queryFn: () => api.getNavLinks() as Promise<NavLink[]>,
   });
 
   // ✅ FINAL WA LINK

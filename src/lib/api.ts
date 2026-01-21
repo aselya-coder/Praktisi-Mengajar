@@ -1,83 +1,78 @@
-const API_BASE = 'http://localhost:3002';
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3002";
 
-async function fetchAPI<T>(endpoint: string): Promise<T> {
+async function fetchAPI<T = unknown>(endpoint: string): Promise<T> {
   const response = await fetch(`${API_BASE}${endpoint}`);
-  if (!response.ok) throw new Error('Network response was not ok');
+  if (!response.ok) throw new Error("Network response was not ok");
   return response.json() as Promise<T>;
 }
 
-async function mutateAPI<T>(
+async function mutateAPI<T = unknown>(
   endpoint: string,
   method: string,
-  data?: any
+  data?: unknown
 ): Promise<T> {
   const response = await fetch(`${API_BASE}${endpoint}`, {
     method,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
     body: data ? JSON.stringify(data) : undefined,
   });
-  if (!response.ok) throw new Error('Network response was not ok');
+  if (!response.ok) throw new Error("Network response was not ok");
   return response.json() as Promise<T>;
 }
 
 export const api = {
-  // Auth
   login: (email: string, password: string) =>
-    fetchAPI<any[]>(`/users?email=${email}&password=${password}`),
+    fetchAPI<unknown[]>(`/users?email=${email}&password=${password}`),
 
-  // Hero
-  getHero: () => fetchAPI<any>('/hero'),
-  updateHero: (data: any) => mutateAPI<any>('/hero', 'PATCH', data),
+  getHero: () => fetchAPI<unknown>("/hero"),
+  updateHero: (data: unknown) => mutateAPI("/hero", "PATCH", data),
 
-  // Services
-  getServices: () => fetchAPI<any[]>('/services'),
-  createService: (data: any) => mutateAPI<any>('/services', 'POST', data),
-  updateService: (id: string, data: any) =>
-    mutateAPI<any>(`/services/${id}`, 'PUT', data),
-  deleteService: (id: string) => mutateAPI<any>(`/services/${id}`, 'DELETE'),
+  getServices: () => fetchAPI<unknown[]>("/services"),
+  createService: (data: unknown) => mutateAPI("/services", "POST", data),
+  updateService: (id: string, data: unknown) =>
+    mutateAPI(`/services/${id}`, "PUT", data),
+  deleteService: (id: string) =>
+    mutateAPI(`/services/${id}`, "DELETE"),
 
-  // Benefits
-  getBenefits: () => fetchAPI<any[]>('/benefits'),
-  createBenefit: (data: any) => mutateAPI<any>('/benefits', 'POST', data),
-  updateBenefit: (id: string, data: any) =>
-    mutateAPI<any>(`/benefits/${id}`, 'PUT', data),
-  deleteBenefit: (id: string) => mutateAPI<any>(`/benefits/${id}`, 'DELETE'),
+  getBenefits: () => fetchAPI<unknown[]>("/benefits"),
+  createBenefit: (data: unknown) => mutateAPI("/benefits", "POST", data),
+  updateBenefit: (id: string, data: unknown) =>
+    mutateAPI(`/benefits/${id}`, "PUT", data),
+  deleteBenefit: (id: string) =>
+    mutateAPI(`/benefits/${id}`, "DELETE"),
 
-  // Process Steps
-  getProcessSteps: () => fetchAPI<any[]>('/processSteps'),
-  createProcessStep: (data: any) => mutateAPI<any>('/processSteps', 'POST', data),
-  updateProcessStep: (id: string, data: any) =>
-    mutateAPI<any>(`/processSteps/${id}`, 'PUT', data),
-  deleteProcessStep: (id: string) => mutateAPI<any>(`/processSteps/${id}`, 'DELETE'),
+  getProcessSteps: () => fetchAPI<unknown[]>("/processSteps"),
+  createProcessStep: (data: unknown) =>
+    mutateAPI("/processSteps", "POST", data),
+  updateProcessStep: (id: string, data: unknown) =>
+    mutateAPI(`/processSteps/${id}`, "PUT", data),
+  deleteProcessStep: (id: string) =>
+    mutateAPI(`/processSteps/${id}`, "DELETE"),
 
-  // Testimonials
-  getTestimonials: () => fetchAPI<any[]>('/testimonials'),
-  createTestimonial: (data: any) => mutateAPI<any>('/testimonials', 'POST', data),
-  updateTestimonial: (id: string, data: any) =>
-    mutateAPI<any>(`/testimonials/${id}`, 'PUT', data),
+  getTestimonials: () => fetchAPI<unknown[]>("/testimonials"),
+  createTestimonial: (data: unknown) =>
+    mutateAPI("/testimonials", "POST", data),
+  updateTestimonial: (id: string, data: unknown) =>
+    mutateAPI(`/testimonials/${id}`, "PUT", data),
   deleteTestimonial: (id: string) =>
-    mutateAPI<any>(`/testimonials/${id}`, 'DELETE'),
+    mutateAPI(`/testimonials/${id}`, "DELETE"),
 
-  // About
-  getAbout: () => fetchAPI<any>('/about'),
-  updateAbout: (data: any) => mutateAPI<any>('/about', 'PATCH', data),
+  getAbout: () => fetchAPI<unknown>("/about"),
+  updateAbout: (data: unknown) => mutateAPI("/about", "PATCH", data),
 
-  // CTA
-  getCTA: () => fetchAPI<any>('/cta'),
-  updateCTA: (data: any) => mutateAPI<any>('/cta', 'PATCH', data),
+  getCTA: () => fetchAPI<unknown>("/cta"),
+  updateCTA: (data: unknown) => mutateAPI("/cta", "PATCH", data),
 
-  // Header
-  getHeader: () => fetchAPI<any>('/header'),
-  updateHeader: (data: any) => mutateAPI<any>('/header', 'PATCH', data),
+  getHeader: () => fetchAPI<unknown>("/header"),
+  updateHeader: (data: unknown) => mutateAPI("/header", "PATCH", data),
 
-  // Nav Links
-  getNavLinks: () => fetchAPI<any[]>('/navLinks'),
-  createNavLink: (data: any) => mutateAPI<any>('/navLinks', 'POST', data),
-  updateNavLink: (id: string, data: any) =>
-    mutateAPI<any>(`/navLinks/${id}`, 'PUT', data),
-  deleteNavLink: (id: string) => mutateAPI<any>(`/navLinks/${id}`, 'DELETE'),
+  getNavLinks: () => fetchAPI<unknown[]>("/navLinks"),
+  createNavLink: (data: unknown) => mutateAPI("/navLinks", "POST", data),
+  updateNavLink: (id: string, data: unknown) =>
+    mutateAPI(`/navLinks/${id}`, "PUT", data),
+  deleteNavLink: (id: string) =>
+    mutateAPI(`/navLinks/${id}`, "DELETE"),
 
-  // Footer
-  getFooter: () => fetchAPI<any>('/footer'),
-  updateFooter: (data: any) => mutateAPI<any>('/footer', 'PATCH', data),
+  getFooter: () => fetchAPI<unknown>("/footer"),
+  updateFooter: (data: unknown) => mutateAPI("/footer", "PATCH", data),
 };

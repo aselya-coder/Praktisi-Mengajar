@@ -4,11 +4,24 @@ import { ArrowRight, MessageCircle, Phone, Mail, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
+// CTA data shape
+interface CTAData {
+  badge: string;
+  title: string;
+  description: string;
+  buttonText: string;
+  secondaryButtonText: string;
+  buttonLink: string;
+  phone: string;
+  email: string;
+  location: string;
+}
+
 const CTA = () => {
   // FETCH DATA FROM API - NO HARDCODE
-  const { data: cta } = useQuery({
+  const { data: cta } = useQuery<CTAData>({
     queryKey: ["cta"],
-    queryFn: api.getCTA,
+    queryFn: () => api.getCTA() as Promise<CTAData>,
   });
 
   // Provide automatic default content when API hasn't returned data yet
@@ -24,7 +37,7 @@ const CTA = () => {
     location: "Indonesia",
   };
 
-  const data = { ...defaults, ...(cta || {}) } as typeof defaults & Partial<typeof cta>;
+  const data = { ...defaults, ...(cta || {}) } as typeof defaults & Partial<CTAData>;
 
   const whatsappLink =
     "https://wa.me/6285646420488?text=" +

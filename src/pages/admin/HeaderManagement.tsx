@@ -58,12 +58,12 @@ const HeaderManagement = () => {
 
   const { data: header, isLoading: headerLoading } = useQuery<HeaderData>({
     queryKey: ["header"],
-    queryFn: api.getHeader,
+    queryFn: () => api.getHeader() as Promise<HeaderData>,
   });
 
   const { data: navLinks, isLoading: navLinksLoading } = useQuery<NavLink[]>({
     queryKey: ["navLinks"],
-    queryFn: api.getNavLinks,
+    queryFn: () => api.getNavLinks() as Promise<NavLink[]>,
   });
 
   const [headerData, setHeaderData] = useState<HeaderData>({

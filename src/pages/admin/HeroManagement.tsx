@@ -44,7 +44,7 @@ const HeroManagement = () => {
 
   const { data: hero, isLoading } = useQuery<HeroData>({
     queryKey: ["hero"],
-    queryFn: api.getHero,
+    queryFn: () => api.getHero() as Promise<HeroData>,
   });
 
   const [formData, setFormData] = useState<HeroData>({

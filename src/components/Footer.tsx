@@ -30,17 +30,17 @@ const Footer = () => {
 
   const { data: footer } = useQuery<FooterData>({
     queryKey: ["footer"],
-    queryFn: api.getFooter,
+    queryFn: () => api.getFooter() as Promise<FooterData>,
   });
 
   const { data: navLinks = [] } = useQuery<NavLink[]>({
     queryKey: ["navLinks"],
-    queryFn: api.getNavLinks,
+    queryFn: () => api.getNavLinks() as Promise<NavLink[]>,
   });
 
   const { data: services = [] } = useQuery<Service[]>({
     queryKey: ["services"],
-    queryFn: api.getServices,
+    queryFn: () => api.getServices() as Promise<Service[]>,
   });
 
   if (!footer) return null;

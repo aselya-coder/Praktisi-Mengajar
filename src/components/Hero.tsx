@@ -5,11 +5,33 @@ import heroImage from "@/assets/hero-image.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
+// Hero data types
+interface HeroStats {
+  universities: string | number;
+  schools: string | number;
+  sessions: string | number;
+  satisfaction: string;
+}
+
+interface HeroData {
+  id?: string | number;
+  badge: string;
+  title: string;
+  subtitle?: string;
+  description: string;
+  buttonText: string;
+  buttonLink?: string;
+  secondaryButtonText?: string;
+  imageUrl?: string;
+  benefits?: string[];
+  stats?: HeroStats;
+}
+
 const Hero = () => {
   // FETCH DATA FROM API - NO HARDCODE
-  const { data: hero } = useQuery({
+  const { data: hero } = useQuery<HeroData>({
     queryKey: ["hero"],
-    queryFn: api.getHero,
+    queryFn: () => api.getHero() as Promise<HeroData>,
   });
 
   // ✅ WhatsApp Link with Auto Message
