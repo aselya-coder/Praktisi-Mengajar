@@ -3,7 +3,13 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -37,7 +43,7 @@ interface NavLink {
 interface HeaderData {
   logoText: string;
   logoFullText: string;
-  mode: string;
+  mode: "fixed" | "sticky";
 }
 
 interface NavLinkForm {
@@ -85,7 +91,7 @@ const HeaderManagement = () => {
     }
   }, [header]);
 
-  /* ===== MUTATIONS (NO ANY) ===== */
+  /* ===== MUTATIONS ===== */
   const updateHeaderMutation = useMutation({
     mutationFn: (data: HeaderData) => api.updateHeader(data),
     onSuccess: () => {
@@ -99,52 +105,46 @@ const HeaderManagement = () => {
     mutationFn: (data: NavLinkForm) => api.createNavLink(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navLinks"] });
-      toast.success("Nav link berhasil ditambahkan!");
-      setDialogOpen(false);
-      resetLinkForm();
+      toast.success("Menu berhasil ditambahkan!");
+      closeDialog();
     },
-    onError: () => toast.error("Gagal menambahkan nav link"),
+    onError: () => toast.error("Gagal menambahkan menu"),
   });
 
   const updateLinkMutation = useMutation({
     mutationFn: (payload: { id: string } & NavLinkForm) =>
-      api.updateNavLink(payload.id, {
-        href: payload.href,
-        label: payload.label,
-        order: payload.order,
-        active: payload.active,
-      }),
+      api.updateNavLink(payload.id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navLinks"] });
-      toast.success("Nav link berhasil diperbarui!");
-      setDialogOpen(false);
-      setEditingLink(null);
-      resetLinkForm();
+      toast.success("Menu berhasil diperbarui!");
+      closeDialog();
     },
-    onError: () => toast.error("Gagal memperbarui nav link"),
+    onError: () => toast.error("Gagal memperbarui menu"),
   });
 
   const deleteLinkMutation = useMutation({
     mutationFn: (id: string) => api.deleteNavLink(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navLinks"] });
-      toast.success("Nav link berhasil dihapus!");
+      toast.success("Menu berhasil dihapus!");
     },
-    onError: () => toast.error("Gagal menghapus nav link"),
+    onError: () => toast.error("Gagal menghapus menu"),
   });
 
-  const handleSubmitHeader = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateHeaderMutation.mutate(headerData);
-  };
-
-  const resetLinkForm = () => {
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setEditingLink(null);
     setLinkFormData({
       href: "",
       label: "",
       order: (navLinks?.length || 0) + 1,
       active: true,
     });
+  };
+
+  const handleSubmitHeader = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateHeaderMutation.mutate(headerData);
   };
 
   const handleEditLink = (link: NavLink) => {
@@ -177,27 +177,50 @@ const HeaderManagement = () => {
 
   return (
     <div className="space-y-6">
-      {/* ---- HEADER FORM ---- */}
+      {/* HEADER */}
       <form onSubmit={handleSubmitHeader}>
         <Card>
           <CardHeader>
             <CardTitle>Pengaturan Header</CardTitle>
             <CardDescription>Logo dan mode header</CardDescription>
           </CardHeader>
-          <CardContent className="grid md:grid-cols-2 gap-4">
+          <CardContent className="grid md:grid-cols-3 gap-4">
             <div>
               <Label>Logo Singkat</Label>
               <Input
                 value={headerData.logoText}
-                onChange={(e) => setHeaderData({ ...headerData, logoText: e.target.value })}
+                onChange={(e) =>
+                  setHeaderData({ ...headerData, logoText: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>Logo Lengkap</Label>
               <Input
                 value={headerData.logoFullText}
-                onChange={(e) => setHeaderData({ ...headerData, logoFullText: e.target.value })}
+                onChange={(e) =>
+                  setHeaderData({
+                    ...headerData,
+                    logoFullText: e.target.value,
+                  })
+                }
               />
+            </div>
+            <div>
+              <Label>Mode Header</Label>
+              <select
+                className="w-full border rounded px-3 py-2"
+                value={headerData.mode}
+                onChange={(e) =>
+                  setHeaderData({
+                    ...headerData,
+                    mode: e.target.value as "fixed" | "sticky",
+                  })
+                }
+              >
+                <option value="fixed">Fixed</option>
+                <option value="sticky">Sticky</option>
+              </select>
             </div>
           </CardContent>
         </Card>
@@ -209,11 +232,80 @@ const HeaderManagement = () => {
         </div>
       </form>
 
-      {/* ---- NAVIGATION TABLE ---- */}
+      {/* MENU */}
       <Card>
-        <CardHeader>
-          <CardTitle>Menu Navigasi</CardTitle>
-          <CardDescription>Total: {navLinks?.length || 0}</CardDescription>
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div>
+            <CardTitle>Menu Navigasi</CardTitle>
+            <CardDescription>Total: {navLinks?.length || 0}</CardDescription>
+          </div>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Tambah Menu
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingLink ? "Edit Menu" : "Tambah Menu"}
+                </DialogTitle>
+                <DialogDescription>Atur menu header</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmitLink} className="space-y-4">
+                <div>
+                  <Label>Label</Label>
+                  <Input
+                    value={linkFormData.label}
+                    onChange={(e) =>
+                      setLinkFormData({
+                        ...linkFormData,
+                        label: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Link</Label>
+                  <Input
+                    value={linkFormData.href}
+                    onChange={(e) =>
+                      setLinkFormData({
+                        ...linkFormData,
+                        href: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Urutan</Label>
+                  <Input
+                    type="number"
+                    value={linkFormData.order}
+                    onChange={(e) =>
+                      setLinkFormData({
+                        ...linkFormData,
+                        order: Number(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={linkFormData.active}
+                    onCheckedChange={(v) =>
+                      setLinkFormData({ ...linkFormData, active: v })
+                    }
+                  />
+                  <span>Aktif</span>
+                </div>
+                <Button type="submit" className="w-full">
+                  Simpan
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
         </CardHeader>
         <CardContent>
           <Table>
@@ -233,7 +325,7 @@ const HeaderManagement = () => {
                   <TableCell>{link.label}</TableCell>
                   <TableCell>{link.href}</TableCell>
                   <TableCell>{link.active ? "Aktif" : "Nonaktif"}</TableCell>
-                  <TableCell>
+                  <TableCell className="space-x-2">
                     <Button size="sm" onClick={() => handleEditLink(link)}>
                       <Edit className="w-4 h-4" />
                     </Button>

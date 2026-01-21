@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -70,7 +76,10 @@ const HeroManagement = () => {
         buttonLink: hero.buttonLink || "",
         secondaryButtonText: hero.secondaryButtonText || "",
         imageUrl: hero.imageUrl || "",
-        benefits: hero.benefits || ["", "", ""],
+        benefits:
+          hero.benefits && hero.benefits.length >= 3
+            ? hero.benefits.slice(0, 3)
+            : ["", "", ""],
         stats: hero.stats || {
           universities: "",
           schools: "",
@@ -87,9 +96,7 @@ const HeroManagement = () => {
       queryClient.invalidateQueries({ queryKey: ["hero"] });
       toast.success("Hero section berhasil diperbarui!");
     },
-    onError: () => {
-      toast.error("Gagal memperbarui hero section");
-    },
+    onError: () => toast.error("Gagal memperbarui hero section"),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -121,30 +128,171 @@ const HeroManagement = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Konten Utama */}
         <Card>
           <CardHeader>
             <CardTitle>Konten Utama</CardTitle>
-            <CardDescription>Teks dan informasi pada hero section</CardDescription>
+            <CardDescription>Teks dan informasi pada hero</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
+            <div>
               <Label>Badge Text</Label>
-              <Input value={formData.badge} onChange={(e) => setFormData({ ...formData, badge: e.target.value })} />
+              <Input
+                value={formData.badge}
+                onChange={(e) =>
+                  setFormData({ ...formData, badge: e.target.value })
+                }
+              />
             </div>
 
-            <div className="space-y-2">
+            <div>
               <Label>Judul Utama</Label>
-              <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
+              <Input
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+              />
             </div>
 
-            <div className="space-y-2">
+            <div>
               <Label>Subtitle</Label>
-              <Input value={formData.subtitle} onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })} />
+              <Input
+                value={formData.subtitle}
+                onChange={(e) =>
+                  setFormData({ ...formData, subtitle: e.target.value })
+                }
+              />
             </div>
 
-            <div className="space-y-2">
+            <div>
               <Label>Deskripsi</Label>
-              <Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+              <Textarea
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+              />
+            </div>
+
+            {formData.benefits.map((b, i) => (
+              <div key={i}>
+                <Label>Keunggulan {i + 1}</Label>
+                <Input
+                  value={b}
+                  onChange={(e) => handleBenefitChange(i, e.target.value)}
+                />
+              </div>
+            ))}
+
+            <div>
+              <Label>Teks Tombol Utama</Label>
+              <Input
+                value={formData.buttonText}
+                onChange={(e) =>
+                  setFormData({ ...formData, buttonText: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Link Tombol Utama</Label>
+              <Input
+                value={formData.buttonLink}
+                onChange={(e) =>
+                  setFormData({ ...formData, buttonLink: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Teks Tombol Kedua</Label>
+              <Input
+                value={formData.secondaryButtonText}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    secondaryButtonText: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div>
+              <Label>URL Background / Image</Label>
+              <Input
+                value={formData.imageUrl}
+                onChange={(e) =>
+                  setFormData({ ...formData, imageUrl: e.target.value })
+                }
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Statistik */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Statistik</CardTitle>
+            <CardDescription>Angka yang tampil di hero</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Universitas</Label>
+              <Input
+                value={formData.stats.universities}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    stats: {
+                      ...formData.stats,
+                      universities: e.target.value,
+                    },
+                  })
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Sekolah</Label>
+              <Input
+                value={formData.stats.schools}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    stats: { ...formData.stats, schools: e.target.value },
+                  })
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Sesi</Label>
+              <Input
+                value={formData.stats.sessions}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    stats: { ...formData.stats, sessions: e.target.value },
+                  })
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Kepuasan (%)</Label>
+              <Input
+                value={formData.stats.satisfaction}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    stats: {
+                      ...formData.stats,
+                      satisfaction: e.target.value,
+                    },
+                  })
+                }
+              />
             </div>
           </CardContent>
         </Card>
