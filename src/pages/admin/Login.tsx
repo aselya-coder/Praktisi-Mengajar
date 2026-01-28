@@ -26,26 +26,29 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
+      console.log("Attempting login with:", email);
       // ✅ api.login mengembalikan User | null
       const user: User | null = await api.login(email, password);
-
+      console.log("Login response:", user);
+  
       if (!user) {
         toast.error("Email atau password salah");
         return;
       }
-
+  
       login({
         id: user.id,
         email: user.email,
         name: user.name,
       });
-
+  
       toast.success("Login berhasil!");
       navigate("/admin/dashboard");
     } catch (error) {
-      toast.error("Terjadi kesalahan saat login");
+      console.error("Login error:", error);
+      toast.error(`Terjadi kesalahan saat login: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
