@@ -8,7 +8,5 @@ const middlewares = jsonServer.defaults();
 server.use(middlewares);
 server.use(router);
 
-const PORT = process.env.PORT || 3002;
-server.listen(PORT, () => {
-  console.log(`JSON Server is running on port ${PORT}`);
-});
+// Export for Vercel serverless
+module.exports = server;
