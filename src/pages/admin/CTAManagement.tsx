@@ -4,10 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+
+/* ================= TYPES ================= */
 
 interface CTAData {
   badge: string;
@@ -21,10 +29,13 @@ interface CTAData {
   location: string;
 }
 
+/* ================= COMPONENT ================= */
+
 const CTAManagement = () => {
   const queryClient = useQueryClient();
 
-  const { data: cta, isLoading } = useQuery<CTAData>({
+  /* ✅ JANGAN pakai <CTAData> di useQuery */
+  const { data: cta, isLoading } = useQuery({
     queryKey: ["cta"],
     queryFn: api.getCTA,
   });
@@ -44,15 +55,15 @@ const CTAManagement = () => {
   useEffect(() => {
     if (cta) {
       setFormData({
-        badge: cta.badge || "",
-        title: cta.title || "",
-        description: cta.description || "",
-        buttonText: cta.buttonText || "",
-        buttonLink: cta.buttonLink || "",
-        secondaryButtonText: cta.secondaryButtonText || "",
-        phone: cta.phone || "",
-        email: cta.email || "",
-        location: cta.location || "",
+        badge: cta.badge,
+        title: cta.title,
+        description: cta.description,
+        buttonText: cta.buttonText,
+        buttonLink: cta.buttonLink,
+        secondaryButtonText: cta.secondaryButtonText,
+        phone: cta.phone,
+        email: cta.email,
+        location: cta.location,
       });
     }
   }, [cta]);
@@ -63,7 +74,9 @@ const CTAManagement = () => {
       queryClient.invalidateQueries({ queryKey: ["cta"] });
       toast.success("CTA section berhasil diperbarui!");
     },
-    onError: () => toast.error("Gagal memperbarui CTA section"),
+    onError: () => {
+      toast.error("Gagal memperbarui CTA section");
+    },
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -89,81 +102,130 @@ const CTAManagement = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* === Konten CTA === */}
+        {/* Konten CTA */}
         <Card>
           <CardHeader>
             <CardTitle>Konten CTA</CardTitle>
-            <CardDescription>Teks dan informasi pada CTA section</CardDescription>
+            <CardDescription>
+              Teks dan informasi pada CTA section
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="badge">Badge Text</Label>
-              <Input id="badge" value={formData.badge} onChange={(e) => setFormData({ ...formData, badge: e.target.value })} />
+              <Label>Badge Text</Label>
+              <Input
+                value={formData.badge}
+                onChange={(e) =>
+                  setFormData({ ...formData, badge: e.target.value })
+                }
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="title">Judul</Label>
-              <Input id="title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
+              <Label>Judul</Label>
+              <Input
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Deskripsi</Label>
-              <Textarea id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} />
+              <Label>Deskripsi</Label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                rows={3}
+              />
             </div>
           </CardContent>
         </Card>
 
-        {/* === Tombol CTA === */}
+        {/* Tombol CTA */}
         <Card>
           <CardHeader>
             <CardTitle>Tombol CTA</CardTitle>
-            <CardDescription>Tombol aksi utama dan sekunder</CardDescription>
+            <CardDescription>
+              Tombol aksi utama dan sekunder
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="buttonText">Teks Tombol Utama</Label>
-                <Input id="buttonText" value={formData.buttonText} onChange={(e) => setFormData({ ...formData, buttonText: e.target.value })} />
+                <Label>Teks Tombol Utama</Label>
+                <Input
+                  value={formData.buttonText}
+                  onChange={(e) =>
+                    setFormData({ ...formData, buttonText: e.target.value })
+                  }
+                />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="buttonLink">Link Tombol Utama</Label>
-                <Input id="buttonLink" value={formData.buttonLink} onChange={(e) => setFormData({ ...formData, buttonLink: e.target.value })} />
+                <Label>Link Tombol Utama</Label>
+                <Input
+                  value={formData.buttonLink}
+                  onChange={(e) =>
+                    setFormData({ ...formData, buttonLink: e.target.value })
+                  }
+                />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="secondaryButtonText">Teks Tombol Sekunder</Label>
-              <Input id="secondaryButtonText" value={formData.secondaryButtonText} onChange={(e) => setFormData({ ...formData, secondaryButtonText: e.target.value })} />
+              <Label>Teks Tombol Sekunder</Label>
+              <Input
+                value={formData.secondaryButtonText}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    secondaryButtonText: e.target.value,
+                  })
+                }
+              />
             </div>
           </CardContent>
         </Card>
 
-        {/* === Kontak === */}
+        {/* Kontak */}
         <Card>
           <CardHeader>
             <CardTitle>Informasi Kontak</CardTitle>
-            <CardDescription>Detail kontak yang ditampilkan</CardDescription>
+            <CardDescription>
+              Detail kontak yang ditampilkan
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="phone">Telepon / WhatsApp</Label>
-              <Input id="phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location">Lokasi</Label>
-              <Input id="location" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} />
-            </div>
+            <Input
+              placeholder="Telepon / WhatsApp"
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+            />
+            <Input
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+            />
+            <Input
+              placeholder="Lokasi"
+              value={formData.location}
+              onChange={(e) =>
+                setFormData({ ...formData, location: e.target.value })
+              }
+            />
           </CardContent>
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit" size="lg" disabled={updateMutation.isPending}>
+          <Button type="submit" disabled={updateMutation.isPending}>
             {updateMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />

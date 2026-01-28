@@ -1,35 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { api, FooterData } from "@/lib/api";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
-import { Save, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
-
-/* ====== TYPE ====== */
-interface SocialMedia {
-  facebook: string;
-  instagram: string;
-  linkedin: string;
-}
-
-interface FooterData {
-  description: string;
-  phone: string;
-  email: string;
-  location: string;
-  copyright: string;
-  socialMedia: SocialMedia;
-}
 
 const FooterManagement = () => {
   const queryClient = useQueryClient();
@@ -45,26 +23,18 @@ const FooterManagement = () => {
     email: "",
     location: "",
     copyright: "",
-    socialMedia: {
-      facebook: "",
-      instagram: "",
-      linkedin: "",
-    },
+    socialMedia: [],
   });
 
   useEffect(() => {
     if (footer) {
       setFormData({
-        description: footer.description || "",
-        phone: footer.phone || "",
-        email: footer.email || "",
-        location: footer.location || "",
-        copyright: footer.copyright || "",
-        socialMedia: footer.socialMedia || {
-          facebook: "",
-          instagram: "",
-          linkedin: "",
-        },
+        description: footer.description ?? "",
+        phone: footer.phone ?? "",
+        email: footer.email ?? "",
+        location: footer.location ?? "",
+        copyright: footer.copyright ?? "",
+        socialMedia: footer.socialMedia ?? [],
       });
     }
   }, [footer]);
@@ -73,153 +43,97 @@ const FooterManagement = () => {
     mutationFn: (data: FooterData) => api.updateFooter(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["footer"] });
-      toast.success("Footer berhasil diperbarui!");
+      toast.success("Footer berhasil diperbarui");
     },
     onError: () => toast.error("Gagal memperbarui footer"),
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateMutation.mutate(formData);
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Footer</h1>
-        <p className="text-muted-foreground">Kelola konten footer website</p>
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Konten Footer</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Deskripsi</Label>
+            <Textarea
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+            />
+          </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Informasi Umum */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Informasi Umum</CardTitle>
-            <CardDescription>Deskripsi dan tagline</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="description">Deskripsi</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                rows={3}
-              />
-            </div>
+          <div>
+            <Label>Telepon</Label>
+            <Input
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="copyright">Copyright Text</Label>
-              <Input
-                id="copyright"
-                value={formData.copyright}
-                onChange={(e) =>
-                  setFormData({ ...formData, copyright: e.target.value })
-                }
-              />
-            </div>
-          </CardContent>
-        </Card>
+          <div>
+            <Label>Email</Label>
+            <Input
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+            />
+          </div>
 
-        {/* Kontak */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Informasi Kontak</CardTitle>
-            <CardDescription>Detail kontak di footer</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="phone">Telepon / WhatsApp</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-              />
-            </div>
+          <div>
+            <Label>Lokasi</Label>
+            <Input
+              value={formData.location}
+              onChange={(e) =>
+                setFormData({ ...formData, location: e.target.value })
+              }
+            />
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-              />
-            </div>
+          <div>
+            <Label>Copyright</Label>
+            <Input
+              value={formData.copyright}
+              onChange={(e) =>
+                setFormData({ ...formData, copyright: e.target.value })
+              }
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="location">Lokasi</Label>
-              <Input
-                id="location"
-                value={formData.location}
-                onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
-                }
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Media Sosial */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Media Sosial</CardTitle>
-            <CardDescription>Link akun sosial media</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {(["facebook", "instagram", "linkedin"] as const).map((key) => (
-              <div key={key} className="space-y-2">
-                <Label htmlFor={key}>{key.toUpperCase()} URL</Label>
-                <Input
-                  id={key}
-                  value={formData.socialMedia[key]}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      socialMedia: {
-                        ...formData.socialMedia,
-                        [key]: e.target.value,
-                      },
-                    })
-                  }
-                  placeholder={`https://${key}.com/...`}
-                />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <div className="flex justify-end">
-          <Button type="submit" size="lg" disabled={updateMutation.isPending}>
-            {updateMutation.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Menyimpan...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Simpan Perubahan
-              </>
-            )}
-          </Button>
-        </div>
-      </form>
-    </div>
+      <Button type="submit" disabled={updateMutation.isPending}>
+        {updateMutation.isPending ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Menyimpan...
+          </>
+        ) : (
+          <>
+            <Save className="w-4 h-4 mr-2" />
+            Simpan
+          </>
+        )}
+      </Button>
+    </form>
   );
 };
 

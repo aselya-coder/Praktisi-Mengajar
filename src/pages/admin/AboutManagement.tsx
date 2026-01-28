@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { api, AboutFormData } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,25 +15,17 @@ import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
-/* ================= TYPES ================= */
-
-interface AboutFormData {
-  badge: string;
-  title: string;
-  description1: string;
-  description2: string;
-  whyChooseUs: string[];
-}
-
-/* ================= COMPONENT ================= */
-
 const AboutManagement = () => {
   const queryClient = useQueryClient();
 
-  const { data: about, isLoading } = useQuery<AboutFormData>({
+  /* ================= GET DATA ================= */
+
+  const { data: about, isLoading } = useQuery({
     queryKey: ["about"],
     queryFn: api.getAbout,
   });
+
+  /* ================= FORM STATE ================= */
 
   const [formData, setFormData] = useState<AboutFormData>({
     badge: "",
@@ -46,24 +38,28 @@ const AboutManagement = () => {
   useEffect(() => {
     if (about) {
       setFormData({
-        badge: about.badge || "",
-        title: about.title || "",
-        description1: about.description1 || "",
-        description2: about.description2 || "",
-        whyChooseUs: about.whyChooseUs?.length
+        badge: about.badge,
+        title: about.title,
+        description1: about.description1,
+        description2: about.description2,
+        whyChooseUs: about.whyChooseUs.length
           ? about.whyChooseUs
           : ["", "", "", "", "", ""],
       });
     }
   }, [about]);
 
+  /* ================= UPDATE ================= */
+
   const updateMutation = useMutation({
-    mutationFn: (data: AboutFormData) => api.updateAbout(data),
+    mutationFn: api.updateAbout,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["about"] });
       toast.success("About section berhasil diperbarui!");
     },
-    onError: () => toast.error("Gagal memperbarui about section"),
+    onError: () => {
+      toast.error("Gagal memperbarui about section");
+    },
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -72,10 +68,12 @@ const AboutManagement = () => {
   };
 
   const handleWhyChooseUsChange = (index: number, value: string) => {
-    const newItems = [...formData.whyChooseUs];
-    newItems[index] = value;
-    setFormData({ ...formData, whyChooseUs: newItems });
+    const updated = [...formData.whyChooseUs];
+    updated[index] = value;
+    setFormData({ ...formData, whyChooseUs: updated });
   };
+
+  /* ================= LOADING ================= */
 
   if (isLoading) {
     return (
@@ -84,6 +82,8 @@ const AboutManagement = () => {
       </div>
     );
   }
+
+  /* ================= UI ================= */
 
   return (
     <div className="space-y-6">
@@ -105,9 +105,8 @@ const AboutManagement = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="badge">Badge Text</Label>
+              <Label>Badge Text</Label>
               <Input
-                id="badge"
                 value={formData.badge}
                 onChange={(e) =>
                   setFormData({ ...formData, badge: e.target.value })
@@ -116,9 +115,8 @@ const AboutManagement = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="title">Judul</Label>
+              <Label>Judul</Label>
               <Input
-                id="title"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
@@ -127,9 +125,8 @@ const AboutManagement = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description1">Deskripsi Paragraf 1</Label>
+              <Label>Deskripsi Paragraf 1</Label>
               <Textarea
-                id="description1"
                 value={formData.description1}
                 onChange={(e) =>
                   setFormData({ ...formData, description1: e.target.value })
@@ -139,9 +136,8 @@ const AboutManagement = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description2">Deskripsi Paragraf 2</Label>
+              <Label>Deskripsi Paragraf 2</Label>
               <Textarea
-                id="description2"
                 value={formData.description2}
                 onChange={(e) =>
                   setFormData({ ...formData, description2: e.target.value })
@@ -152,7 +148,7 @@ const AboutManagement = () => {
           </CardContent>
         </Card>
 
-        {/* Mengapa Memilih Kami */}
+        {/* Why Choose Us */}
         <Card>
           <CardHeader>
             <CardTitle>Mengapa Memilih Kami</CardTitle>
@@ -161,14 +157,12 @@ const AboutManagement = () => {
           <CardContent className="space-y-4">
             {formData.whyChooseUs.map((item, index) => (
               <div key={index} className="space-y-2">
-                <Label htmlFor={`why-${index}`}>Alasan {index + 1}</Label>
+                <Label>Alasan {index + 1}</Label>
                 <Input
-                  id={`why-${index}`}
                   value={item}
                   onChange={(e) =>
                     handleWhyChooseUsChange(index, e.target.value)
                   }
-                  placeholder={`Alasan ${index + 1}`}
                 />
               </div>
             ))}
@@ -176,7 +170,7 @@ const AboutManagement = () => {
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit" size="lg" disabled={updateMutation.isPending}>
+          <Button type="submit" disabled={updateMutation.isPending}>
             {updateMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />

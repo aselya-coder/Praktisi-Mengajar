@@ -31,7 +31,7 @@ import { toast } from "sonner";
 import { Save, Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
-/* ===== TYPES ===== */
+/* ================= TYPES ================= */
 interface NavLink {
   id: string;
   href: string;
@@ -53,19 +53,33 @@ interface NavLinkForm {
   active: boolean;
 }
 
+/* ================= COMPONENT ================= */
 const HeaderManagement = () => {
   const queryClient = useQueryClient();
 
-  const { data: header, isLoading: headerLoading } = useQuery<HeaderData>({
+  /* ===== QUERY HEADER ===== */
+  const {
+    data: header,
+    isLoading: headerLoading,
+  } = useQuery({
     queryKey: ["header"],
-    queryFn: () => api.getHeader() as Promise<HeaderData>,
+    queryFn: async (): Promise<HeaderData> => {
+      return await api.getHeader();
+    },
   });
 
-  const { data: navLinks, isLoading: navLinksLoading } = useQuery<NavLink[]>({
+  /* ===== QUERY NAV LINKS ===== */
+  const {
+    data: navLinks = [],
+    isLoading: navLinksLoading,
+  } = useQuery({
     queryKey: ["navLinks"],
-    queryFn: () => api.getNavLinks() as Promise<NavLink[]>,
+    queryFn: async (): Promise<NavLink[]> => {
+      return await api.getNavLinks();
+    },
   });
 
+  /* ===== STATE ===== */
   const [headerData, setHeaderData] = useState<HeaderData>({
     logoText: "",
     logoFullText: "",
@@ -81,17 +95,15 @@ const HeaderManagement = () => {
     active: true,
   });
 
+  /* ===== EFFECT ===== */
   useEffect(() => {
     if (header) {
-      setHeaderData({
-        logoText: header.logoText || "",
-        logoFullText: header.logoFullText || "",
-        mode: header.mode || "fixed",
-      });
+      setHeaderData(header);
     }
   }, [header]);
 
-  /* ===== MUTATIONS ===== */
+  /* ================= MUTATIONS ================= */
+
   const updateHeaderMutation = useMutation({
     mutationFn: (data: HeaderData) => api.updateHeader(data),
     onSuccess: () => {
@@ -112,8 +124,8 @@ const HeaderManagement = () => {
   });
 
   const updateLinkMutation = useMutation({
-    mutationFn: (payload: { id: string } & NavLinkForm) =>
-      api.updateNavLink(payload.id, payload),
+    mutationFn: ({ id, ...data }: { id: string } & NavLinkForm) =>
+      api.updateNavLink(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navLinks"] });
       toast.success("Menu berhasil diperbarui!");
@@ -131,13 +143,15 @@ const HeaderManagement = () => {
     onError: () => toast.error("Gagal menghapus menu"),
   });
 
+  /* ================= HANDLER ================= */
+
   const closeDialog = () => {
     setDialogOpen(false);
     setEditingLink(null);
     setLinkFormData({
       href: "",
       label: "",
-      order: (navLinks?.length || 0) + 1,
+      order: navLinks.length + 1,
       active: true,
     });
   };
@@ -149,12 +163,7 @@ const HeaderManagement = () => {
 
   const handleEditLink = (link: NavLink) => {
     setEditingLink(link);
-    setLinkFormData({
-      href: link.href,
-      label: link.label,
-      order: link.order,
-      active: link.active,
-    });
+    setLinkFormData(link);
     setDialogOpen(true);
   };
 
@@ -167,17 +176,19 @@ const HeaderManagement = () => {
     }
   };
 
+  /* ================= LOADING ================= */
   if (headerLoading || navLinksLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex justify-center items-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
+  /* ================= RENDER ================= */
   return (
     <div className="space-y-6">
-      {/* HEADER */}
+      {/* HEADER FORM */}
       <form onSubmit={handleSubmitHeader}>
         <Card>
           <CardHeader>
@@ -224,6 +235,7 @@ const HeaderManagement = () => {
             </div>
           </CardContent>
         </Card>
+
         <div className="flex justify-end mt-4">
           <Button type="submit">
             <Save className="w-4 h-4 mr-2" />
@@ -232,13 +244,14 @@ const HeaderManagement = () => {
         </div>
       </form>
 
-      {/* MENU */}
+      {/* NAVIGATION TABLE */}
       <Card>
         <CardHeader className="flex flex-row justify-between items-center">
           <div>
             <CardTitle>Menu Navigasi</CardTitle>
-            <CardDescription>Total: {navLinks?.length || 0}</CardDescription>
+            <CardDescription>Total: {navLinks.length}</CardDescription>
           </div>
+
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -246,6 +259,7 @@ const HeaderManagement = () => {
                 Tambah Menu
               </Button>
             </DialogTrigger>
+
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>
@@ -253,6 +267,7 @@ const HeaderManagement = () => {
                 </DialogTitle>
                 <DialogDescription>Atur menu header</DialogDescription>
               </DialogHeader>
+
               <form onSubmit={handleSubmitLink} className="space-y-4">
                 <div>
                   <Label>Label</Label>
@@ -266,6 +281,7 @@ const HeaderManagement = () => {
                     }
                   />
                 </div>
+
                 <div>
                   <Label>Link</Label>
                   <Input
@@ -278,6 +294,7 @@ const HeaderManagement = () => {
                     }
                   />
                 </div>
+
                 <div>
                   <Label>Urutan</Label>
                   <Input
@@ -291,6 +308,7 @@ const HeaderManagement = () => {
                     }
                   />
                 </div>
+
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={linkFormData.active}
@@ -300,6 +318,7 @@ const HeaderManagement = () => {
                   />
                   <span>Aktif</span>
                 </div>
+
                 <Button type="submit" className="w-full">
                   Simpan
                 </Button>
@@ -307,6 +326,7 @@ const HeaderManagement = () => {
             </DialogContent>
           </Dialog>
         </CardHeader>
+
         <CardContent>
           <Table>
             <TableHeader>
@@ -318,13 +338,16 @@ const HeaderManagement = () => {
                 <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
-              {navLinks?.map((link) => (
+              {navLinks.map((link) => (
                 <TableRow key={link.id}>
                   <TableCell>{link.order}</TableCell>
                   <TableCell>{link.label}</TableCell>
                   <TableCell>{link.href}</TableCell>
-                  <TableCell>{link.active ? "Aktif" : "Nonaktif"}</TableCell>
+                  <TableCell>
+                    {link.active ? "Aktif" : "Nonaktif"}
+                  </TableCell>
                   <TableCell className="space-x-2">
                     <Button size="sm" onClick={() => handleEditLink(link)}>
                       <Edit className="w-4 h-4" />

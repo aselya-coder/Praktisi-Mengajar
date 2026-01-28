@@ -3,21 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useAuthStore } from "@/lib/auth-store";
-import { api } from "@/lib/api";
+import { api, User } from "@/lib/api";
 import { toast } from "sonner";
 import { Lock } from "lucide-react";
-
-/* ===== TYPE ===== */
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
-
-/* ===== COMPONENT ===== */
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -32,22 +28,22 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const users: User[] = await api.login(email, password);
+      // ✅ api.login mengembalikan User | null
+      const user: User | null = await api.login(email, password);
 
-      if (users && users.length > 0) {
-        const user = users[0];
-
-        login({
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        });
-
-        toast.success("Login berhasil!");
-        navigate("/admin/dashboard");
-      } else {
+      if (!user) {
         toast.error("Email atau password salah");
+        return;
       }
+
+      login({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      });
+
+      toast.success("Login berhasil!");
+      navigate("/admin/dashboard");
     } catch (error) {
       toast.error("Terjadi kesalahan saat login");
     } finally {
