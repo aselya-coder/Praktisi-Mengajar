@@ -1,6 +1,5 @@
 const API_BASE =
-  import.meta.env.VITE_API_BASE || "http://localhost:3002";
-
+  import.meta.env.VITE_API_BASE || "https://praktisibackend.vercel.app";
 /* ================= BASE ================= */
 
 async function fetchAPI<T>(endpoint: string): Promise<T> {

@@ -99,7 +99,7 @@ const Login = () => {
           </form>
 
           <p className="text-sm text-muted-foreground text-center mt-4">
-            Demo: admin@praktisimengajar.id / admin123
+            lupa password? Silakan hubungi developer untuk mereset password Anda.
           </p>
         </CardContent>
       </Card>
