@@ -118,6 +118,7 @@ export interface ProcessStep {
   title: string;
   description: string;
   isActive: boolean;
+  order: number;
 }
 
 export interface ProcessFormData {
@@ -126,6 +127,7 @@ export interface ProcessFormData {
   title: string;
   description: string;
   isActive: boolean;
+  order: number;
 }
 
 /* ================= SERVICES ================= */
@@ -164,6 +166,21 @@ export interface TestimonialFormData {
   role: string;
   institution: string;
   rating: number;
+}
+
+/* ================= BENEFITS ================= */
+
+export interface Benefit {
+  id: string;
+  iconName: string;
+  title: string;
+  description: string;
+}
+
+export interface BenefitFormData {
+  iconName: string;
+  title: string;
+  description: string;
 }
 
 /* ================= API ================= */
@@ -235,6 +252,15 @@ export const api = {
     mutateAPI<Service>(`/services/${id}`, "PUT", data),
   deleteService: (id: string) =>
     mutateAPI<void>(`/services/${id}`, "DELETE"),
+
+  /* ===== BENEFITS ===== */
+  getBenefits: () => fetchAPI<Benefit[]>("/benefits"),
+  createBenefit: (data: BenefitFormData) =>
+    mutateAPI<Benefit>("/benefits", "POST", data),
+  updateBenefit: (id: string, data: BenefitFormData) =>
+    mutateAPI<Benefit>(`/benefits/${id}`, "PUT", data),
+  deleteBenefit: (id: string) =>
+    mutateAPI<void>(`/benefits/${id}`, "DELETE"),
 
   /* ===== TESTIMONIALS ===== */
   getTestimonials: () => fetchAPI<Testimonial[]>("/testimonials"),

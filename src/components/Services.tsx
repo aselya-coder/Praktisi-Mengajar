@@ -1,25 +1,10 @@
 import { motion } from "framer-motion";
 import { GraduationCap, Users, Mic2, BookOpen, Clock, Award } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { api, Service, Benefit } from "@/lib/api";
 import { LucideIcon } from "lucide-react";
 
-// ================= TYPES =================
-interface Service {
-  id: string | number;
-  title: string;
-  description: string;
-  iconName: string;
-  order: number;
-  features?: string[];
-}
-
-interface Benefit {
-  id: string | number;
-  title: string;
-  description: string;
-  iconName: string;
-}
+// REMOVE THE LOCAL Service and Benefit INTERFACES
 
 // ================= ICON MAP =================
 const iconMap: Record<string, LucideIcon> = {

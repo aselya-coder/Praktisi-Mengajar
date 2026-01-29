@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { MessageSquare, Search, CalendarCheck, Presentation, CheckCircle, Clock, FileText, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { api, ProcessStep } from "@/lib/api";
 
 /* ==== TYPES ==== */
 type IconName =
@@ -13,15 +13,6 @@ type IconName =
   | "Clock"
   | "FileText"
   | "Users";
-
-interface ProcessStep {
-  id: string | number;
-  title: string;
-  description: string;
-  iconName: IconName;
-  order: number;
-  number: number;
-}
 
 /* ==== ICON MAP ==== */
 const iconMap: Record<IconName, React.ElementType> = {
