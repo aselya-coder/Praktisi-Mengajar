@@ -1,5 +1,4 @@
-const API_BASE =
-  import.meta.env.VITE_API_BASE || "https://praktisibackend.vercel.app";
+const API_BASE = "/api";
 /* ================= BASE ================= */
 
 async function fetchAPI<T>(endpoint: string): Promise<T> {

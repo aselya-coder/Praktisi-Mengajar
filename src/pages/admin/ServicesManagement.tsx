@@ -152,10 +152,16 @@ const ServicesManagement = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const dataToSubmit = {
+      ...formData,
+      features: formData.features.filter((feature) => feature.trim() !== ""),
+    };
+
     if (editingService) {
-      updateMutation.mutate({ id: editingService.id, ...formData });
+      updateMutation.mutate({ id: editingService.id, ...dataToSubmit });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(dataToSubmit);
     }
   };
 

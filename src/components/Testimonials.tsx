@@ -1,24 +1,30 @@
 import { motion } from "framer-motion";
 import { Quote, Star } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-
-// ================= TYPES =================
-interface Testimonial {
-  id: string | number;
-  name: string;
-  role: string;
-  institution: string;
-  quote: string;
-  rating: number;
-}
 
 const Testimonials = () => {
-  // FETCH DATA FROM API - NO HARDCODE
-  const { data: testimonials = [] } = useQuery<Testimonial[]>({
-    queryKey: ["testimonials"],
-    queryFn: api.getTestimonials,
-  });
+  const testimonials = [
+    {
+      quote: "Praktisi yang dihadirkan sangat kompeten dan mampu menyampaikan materi dengan cara yang menarik. Siswa kami sangat antusias dan mendapat wawasan berharga tentang dunia industri.",
+      name: "Dr. Siti Nurhaliza, M.Pd.",
+      role: "Kepala Sekolah",
+      institution: "SMAN 1 Jakarta",
+      rating: 5,
+    },
+    {
+      quote: "Kami sudah beberapa kali menggunakan layanan Praktisi Mengajar untuk mata kuliah praktikum. Mahasiswa sangat terbantu dengan insight langsung dari profesional yang berpengalaman.",
+      name: "Prof. Ahmad Dahlan",
+      role: "Ketua Jurusan Teknik Informatika",
+      institution: "Universitas Indonesia",
+      rating: 5,
+    },
+    {
+      quote: "Proses koordinasi sangat profesional dan praktisi yang hadir sesuai dengan kebutuhan kami. Seminar dies natalis kampus berjalan sukses berkat pembicara yang berkualitas.",
+      name: "Drs. Bambang Sutrisno, M.M.",
+      role: "Kepala Bagian Kemahasiswaan",
+      institution: "Politeknik Negeri Bandung",
+      rating: 5,
+    },
+  ];
 
   return (
     <section id="testimonial" className="py-20 lg:py-28 bg-background">
@@ -47,7 +53,7 @@ const Testimonials = () => {
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
             <motion.div
-              key={testimonial.id}
+              key={testimonial.name}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -63,7 +69,7 @@ const Testimonials = () => {
 
               {/* Rating */}
               <div className="flex gap-1 mb-4 pt-4">
-                {Array.from({ length: testimonial.rating }).map((_, i) => (
+                {[...Array(testimonial.rating)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-accent text-accent" />
                 ))}
               </div>

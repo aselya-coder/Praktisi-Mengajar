@@ -1,69 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight, MessageCircle, Phone, Mail, MapPin } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-
-// CTA data shape
-interface CTAData {
-  badge: string;
-  title: string;
-  description: string;
-  buttonText: string;
-  secondaryButtonText: string;
-  buttonLink: string;
-  phone: string;
-  email: string;
-  location: string;
-}
 
 const CTA = () => {
-  // FETCH DATA FROM API - NO HARDCODE
-  const { data: cta } = useQuery<CTAData>({
-    queryKey: ["cta"],
-    queryFn: () => api.getCTA() as Promise<CTAData>,
-  });
-
-  // Provide automatic default content when API hasn't returned data yet
-  const defaults = {
-    badge: "Hubungi Kami",
-    title: "Siap Terhubung dengan Praktisi Pengajar",
-    description: "Ajukan kebutuhan pengajar tamu, pembicara seminar, atau kolaborasi kurikulum. Tim kami akan merespons secepatnya.",
-    buttonText: "Hubungi via WhatsApp",
-    secondaryButtonText: "Konsultasi Gratis",
-    buttonLink: "https://wa.me/6285646420488?text=Halo,%20saya%20tertarik%20dengan%20layanan%20Praktisi%20Mengajar",
-    phone: "+62 856-4642-0488",
-    email: "halo@praktisimengajar.id",
-    location: "Indonesia",
-  };
-
-  const data = { ...defaults, ...(cta || {}) } as typeof defaults & Partial<CTAData>;
-
-  const whatsappLink =
-    "https://wa.me/6285646420488?text=" +
-    encodeURIComponent("Halo, saya tertarik dengan layanan Praktisi Mengajar");
-  
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
-  
-    const pesan = `
-  Halo, saya ingin mengajukan:
-  
-  Nama: ${data.get("nama")}
-  Jabatan: ${data.get("jabatan")}
-  Institusi: ${data.get("institusi")}
-  Email: ${data.get("email")}
-  WA: ${data.get("wa")}
-  Layanan: ${data.get("layanan")}
-  Kebutuhan: ${data.get("deskripsi")}
-    `;
-  
-    const link =
-      "https://wa.me/6285646420488?text=" + encodeURIComponent(pesan);
-  
-    window.open(link, "_blank");
-  };  
+  const whatsappLink = "https://wa.me/6285646420488?text=Halo,%20saya%20tertarik%20dengan%20layanan%20Praktisi%20Mengajar";
 
   return (
     <section id="kontak" className="py-20 lg:py-28 bg-background">
@@ -77,27 +17,28 @@ const CTA = () => {
             transition={{ duration: 0.6 }}
           >
             <span className="inline-block text-accent font-semibold text-sm uppercase tracking-wider mb-4">
-              {data.badge}
+              Mulai Sekarang
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-              {data.title}
+              Siap Menghadirkan Praktisi ke Institusi Anda?
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              {data.description}
+              Hubungi kami sekarang untuk konsultasi gratis. Tim kami siap membantu 
+              menemukan praktisi yang tepat untuk kebutuhan institusi Anda.
             </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
               <Button variant="accent" size="xl" asChild>
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  {data.buttonText}
+                <a href="#form">
+                  Ajukan Praktisi Mengajar
                   <ArrowRight className="w-5 h-5" />
                 </a>
               </Button>
               <Button variant="whatsapp" size="xl" asChild>
                 <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="w-5 h-5" />
-                  {data.secondaryButtonText}
+                  Konsultasi via WhatsApp
                 </a>
               </Button>
             </div>
@@ -110,7 +51,7 @@ const CTA = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Telepon / WhatsApp</p>
-                  <p className="font-medium text-foreground">{data.phone}</p>
+                  <p className="font-medium text-foreground">+62 812-3456-7890</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -119,7 +60,7 @@ const CTA = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium text-foreground">{data.email}</p>
+                  <p className="font-medium text-foreground">info@praktisimengajar.id</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -128,7 +69,7 @@ const CTA = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Lokasi</p>
-                  <p className="font-medium text-foreground">{data.location}</p>
+                  <p className="font-medium text-foreground">Jakarta, Indonesia</p>
                 </div>
               </div>
             </div>
@@ -146,14 +87,13 @@ const CTA = () => {
             <h3 className="text-2xl font-bold text-foreground mb-6">
               Formulir Pengajuan
             </h3>
-            <form className="space-y-5" onSubmit={handleSubmit}>
+            <form className="space-y-5">
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Nama Lengkap *
                   </label>
                   <input
-                    name="nama"
                     type="text"
                     required
                     className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
@@ -165,7 +105,6 @@ const CTA = () => {
                     Jabatan *
                   </label>
                   <input
-                    name="jabatan"
                     type="text"
                     required
                     className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
@@ -179,7 +118,6 @@ const CTA = () => {
                   Institusi *
                 </label>
                 <input
-                  name="institusi"
                   type="text"
                   required
                   className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
@@ -193,7 +131,6 @@ const CTA = () => {
                     Email *
                   </label>
                   <input
-                    name="email"
                     type="email"
                     required
                     className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
@@ -205,7 +142,6 @@ const CTA = () => {
                     No. WhatsApp *
                   </label>
                   <input
-                    name="wa"
                     type="tel"
                     required
                     className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
@@ -219,7 +155,6 @@ const CTA = () => {
                   Jenis Layanan *
                 </label>
                 <select
-                  name="layanan"
                   required
                   className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
                 >
@@ -236,7 +171,6 @@ const CTA = () => {
                   Deskripsi Kebutuhan
                 </label>
                 <textarea
-                  name="deskripsi"
                   rows={4}
                   className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all resize-none"
                   placeholder="Jelaskan topik, jumlah peserta, tanggal yang diinginkan, dll."

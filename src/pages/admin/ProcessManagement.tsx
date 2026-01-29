@@ -9,14 +9,14 @@ export default function ProcessManagement() {
   const queryClient = useQueryClient();
 
   const [form, setForm] = useState<ProcessFormData>({
+    order: 1,
     number: 1,
     iconName: "",
     title: "",
     description: "",
-    isActive: true,  // Ubah dari 'active' menjadi 'isActive'
+    isActive: true,
   });
 
-  /* ===== GET DATA ===== */
   const {
     data: steps = [],
     isLoading,
@@ -25,7 +25,6 @@ export default function ProcessManagement() {
     queryFn: api.getProcessSteps,
   });
 
-  /* ===== CREATE ===== */
   const createMutation = useMutation({
     mutationFn: api.createProcessStep,
     onSuccess: () => {
@@ -34,7 +33,6 @@ export default function ProcessManagement() {
     },
   });
 
-  /* ===== DELETE ===== */
   const deleteMutation = useMutation({
     mutationFn: api.deleteProcessStep,
     onSuccess: () => {
@@ -42,15 +40,14 @@ export default function ProcessManagement() {
     },
   });
 
-  /* ===== HANDLERS ===== */
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-
+    const isNumberField = name === "number" || name === "order";
     setForm((prev) => ({
       ...prev,
-      [name]: name === "number" ? Number(value) : value,
+      [name]: isNumberField ? Number(value) : value,
     }));
   };
 
@@ -61,25 +58,31 @@ export default function ProcessManagement() {
 
   const resetForm = () => {
     setForm({
-      number: steps.length + 1,
+      order: (steps.length || 0) + 1,
+      number: (steps.length || 0) + 1,
       iconName: "",
       title: "",
       description: "",
-      isActive: true,  // Ubah dari 'active' menjadi 'isActive'
+      isActive: true,
     });
   };
-  
 
   if (isLoading) return <p className="p-6">Loading...</p>;
 
-  const sortedSteps = [...steps].sort((a, b) => a.number - b.number);
+  const sortedSteps = [...steps].sort((a, b) => a.order - b.order);
 
   return (
     <div className="p-6 max-w-5xl space-y-6">
       <h1 className="text-2xl font-bold">Process Management</h1>
 
-      {/* FORM */}
       <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-lg">
+        <Input
+          name="order"
+          type="number"
+          value={form.order}
+          onChange={handleChange}
+          placeholder="Step Order"
+        />
         <Input
           name="number"
           type="number"
@@ -107,11 +110,10 @@ export default function ProcessManagement() {
         />
 
         <Button type="submit" disabled={createMutation.isPending}>
-          {createMutation.isPending ? "Menyimpan..." : "Tambah Step"}
+          {createMutation.isPending ? "Saving..." : "Add Step"}
         </Button>
       </form>
 
-      {/* LIST */}
       <div className="space-y-4">
         {sortedSteps.map((step) => (
           <div
@@ -120,13 +122,13 @@ export default function ProcessManagement() {
           >
             <div>
               <p className="font-semibold">
-                {step.number}. {step.title}
+                {step.order}. {step.title}
               </p>
               <p className="text-sm text-muted-foreground">
                 {step.description}
               </p>
               <p className="text-xs">
-                Status: {step.isActive ? "Aktif" : "Nonaktif"}  
+                Status: {step.isActive ? "Active" : "Inactive"}
               </p>
             </div>
 
@@ -135,7 +137,7 @@ export default function ProcessManagement() {
               size="sm"
               onClick={() => deleteMutation.mutate(step.id)}
             >
-              Hapus
+              Delete
             </Button>
           </div>
         ))}

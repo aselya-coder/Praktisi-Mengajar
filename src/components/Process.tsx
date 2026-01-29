@@ -1,37 +1,33 @@
 import { motion } from "framer-motion";
-import { MessageSquare, Search, CalendarCheck, Presentation, CheckCircle, Clock, FileText, Users } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { api, ProcessStep } from "@/lib/api";
-
-/* ==== TYPES ==== */
-type IconName =
-  | "MessageSquare"
-  | "Search"
-  | "CalendarCheck"
-  | "Presentation"
-  | "CheckCircle"
-  | "Clock"
-  | "FileText"
-  | "Users";
-
-/* ==== ICON MAP ==== */
-const iconMap: Record<IconName, React.ElementType> = {
-  MessageSquare,
-  Search,
-  CalendarCheck,
-  Presentation,
-  CheckCircle,
-  Clock,
-  FileText,
-  Users,
-};
+import { MessageSquare, Search, CalendarCheck, Presentation } from "lucide-react";
 
 const Process = () => {
-  // FETCH DATA FROM API - NO HARDCODE
-  const { data: steps = [] } = useQuery<ProcessStep[]>({
-    queryKey: ["processSteps"],
-    queryFn: api.getProcessSteps,
-  });
+  const steps = [
+    {
+      number: "01",
+      icon: MessageSquare,
+      title: "Konsultasi Kebutuhan",
+      description: "Hubungi kami via WhatsApp atau form untuk diskusikan kebutuhan spesifik institusi Anda.",
+    },
+    {
+      number: "02",
+      icon: Search,
+      title: "Pencocokan Praktisi",
+      description: "Tim kami mencarikan praktisi yang paling sesuai dengan topik dan level peserta didik.",
+    },
+    {
+      number: "03",
+      icon: CalendarCheck,
+      title: "Konfirmasi & Penjadwalan",
+      description: "Setelah praktisi dikonfirmasi, atur jadwal sesuai agenda institusi Anda.",
+    },
+    {
+      number: "04",
+      icon: Presentation,
+      title: "Pelaksanaan Sesi",
+      description: "Praktisi hadir dan menyampaikan materi yang inspiratif dan aplikatif.",
+    },
+  ];
 
   return (
     <section id="proses" className="py-20 lg:py-28 bg-muted/50">
@@ -62,39 +58,34 @@ const Process = () => {
           <div className="hidden lg:block absolute top-24 left-[calc(12.5%+2rem)] right-[calc(12.5%+2rem)] h-0.5 bg-border" />
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {steps
-              .sort((a, b) => a.order - b.order)
-              .map((step, index) => {
-                const IconComponent = iconMap[step.iconName] || MessageSquare;
-                return (
-                  <motion.div
-                    key={step.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: index * 0.15 }}
-                    className="relative text-center"
-                  >
-                    {/* Step Number Circle */}
-                    <div className="relative inline-flex items-center justify-center mb-6">
-                      <div className="w-16 h-16 rounded-full bg-gradient-hero flex items-center justify-center shadow-card">
-                        <IconComponent className="w-7 h-7 text-primary-foreground" />
-                      </div>
-                      <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-accent text-accent-foreground text-sm font-bold flex items-center justify-center">
-                        {step.number}
-                      </span>
-                    </div>
+            {steps.map((step, index) => (
+              <motion.div
+                key={step.number}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.15 }}
+                className="relative text-center"
+              >
+                {/* Step Number Circle */}
+                <div className="relative inline-flex items-center justify-center mb-6">
+                  <div className="w-16 h-16 rounded-full bg-gradient-hero flex items-center justify-center shadow-card">
+                    <step.icon className="w-7 h-7 text-primary-foreground" />
+                  </div>
+                  <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-accent text-accent-foreground text-sm font-bold flex items-center justify-center">
+                    {step.number}
+                  </span>
+                </div>
 
-                    {/* Content */}
-                    <h3 className="text-xl font-bold text-foreground mb-3">
-                      {step.title}
-                    </h3>
-                    <p className="text-muted-foreground">
-                      {step.description}
-                    </p>
-                  </motion.div>
-                );
-              })}
+                {/* Content */}
+                <h3 className="text-xl font-bold text-foreground mb-3">
+                  {step.title}
+                </h3>
+                <p className="text-muted-foreground">
+                  {step.description}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>

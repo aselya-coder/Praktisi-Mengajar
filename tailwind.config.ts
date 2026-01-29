@@ -8,7 +8,13 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
+    './src/index.css',
 	],
+  safelist: [
+    'border-border',
+    'bg-background',
+    'text-foreground',
+  ],
   prefix: "",
   theme: {
     container: {
